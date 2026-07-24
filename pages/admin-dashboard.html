@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — UrbanCloset Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="config.js"></script>
+  <script>
+  if (!sessionStorage.getItem('uc_admin_token')) {
+    window.location.replace('admin-login.html');
+  }
+</script>
+  <style>
+    :root {
+      --dark:  #1a1008;
+      --dark2: #2c2318;
+      --gold:  #CBAD8D;
+      --tan:   #A48374;
+      --sand:  #D1C7BD;
+      --cream: #F5F0EA;
+      --muted: #7a6a5a;
+      --sidebar: 22 0px;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans:  'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); background: var(--cream); color: var(--dark2); display: flex; min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; font-family: inherit; }
+
+    /* ── SIDEBAR ── */
+    .sidebar { width: var(--sidebar); background: var(--dark); min-height: 100vh; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; z-index: 100; }
+    .sidebar-logo { padding: 24px 20px 16px; border-bottom: 1px solid rgba(203,173,141,0.1); }
+    .sidebar-logo-text { font-family: var(--font-serif); font-size: 18px; color: var(--gold); letter-spacing: 3px; display: block; }
+    .sidebar-logo-sub { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: rgba(203,173,141,0.35); margin-top: 2px; display: block; }
+    .sidebar-nav { flex: 1; padding: 12px 0; }
+    .nav-section-label { font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(203,173,141,0.3); padding: 10px 20px 4px; }
+    .nav-link { display: flex; align-items: center; gap: 10px; padding: 10px 20px; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(203,173,141,0.6); border-left: 2px solid transparent; transition: all 0.2s; }
+    .nav-link:hover { color: var(--gold); background: rgba(203,173,141,0.04); }
+    .nav-link.active { color: var(--gold); border-left-color: var(--tan); background: rgba(203,173,141,0.06); }
+    .nav-link .nav-icon { font-size: 14px; width: 18px; text-align: center; }
+    .sidebar-divider { height: 1px; background: rgba(203,173,141,0.08); margin: 6px 20px; }
+    .sidebar-foot { padding: 14px 20px; border-top: 1px solid rgba(203,173,141,0.08); font-size: 10px; color: rgba(203,173,141,0.4); }
+    .sidebar-user { margin-bottom: 8px; }
+    .btn-logout { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(203,173,141,0.4); background: none; border: 1px solid rgba(203,173,141,0.15); padding: 5px 10px; border-radius: 3px; cursor: pointer; transition: all 0.2s; width: 100%; }
+    .btn-logout:hover { color: var(--gold); border-color: rgba(203,173,141,0.4); }
+
+    /* ── MAIN ── */
+    .main { margin-left: var(--sidebar); flex: 1; display: flex; flex-direction: column; min-height: 100vh; }
+
+    /* ── TOP BAR ── */
+    .topbar { background: #fff; padding: 14px 28px; border-bottom: 1px solid rgba(164,131,116,0.15); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+    .topbar-title { font-family: var(--font-serif); font-size: 22px; color: var(--dark2); }
+    .topbar-right { display: flex; gap: 10px; align-items: center; }
+    .view-store { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); border: 1px solid rgba(164,131,116,0.3); padding: 8px 14px; border-radius: 3px; transition: all 0.2s; }
+    .view-store:hover { color: var(--tan); border-color: var(--tan); }
+
+    /* ── CONTENT ── */
+    .content { padding: 28px; flex: 1; }
+
+    /* ── STATS ── */
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 14px; }
+    .stats-grid-secondary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+    .stat-card { background: #fff; border-radius: 4px; padding: 20px 22px; border-left: 3px solid var(--tan); }
+    .stat-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
+    .stat-value { font-family: var(--font-serif); font-size: 32px; color: var(--dark2); font-weight: 700; line-height: 1; }
+    .stat-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+    /* ── QUICK LINKS ── */
+    .section-title { font-family: var(--font-serif); font-size: 18px; color: var(--dark2); margin-bottom: 14px; }
+    .quick-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+    .quick-card { background: #fff; border-radius: 4px; padding: 22px 20px; display: flex; align-items: center; gap: 16px; border: 1px solid rgba(164,131,116,0.12); transition: box-shadow 0.2s, border-color 0.2s; }
+    .quick-card:hover { box-shadow: 0 2px 12px rgba(164,131,116,0.12); border-color: rgba(164,131,116,0.3); }
+    .quick-icon { font-size: 28px; }
+    .quick-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+    .quick-title { font-size: 14px; font-weight: 500; color: var(--dark2); }
+
+    /* ── RECENT ORDERS ── */
+    .table-card { background: #fff; border-radius: 4px; overflow: hidden; }
+    .table-head { padding: 16px 20px; border-bottom: 1px solid rgba(164,131,116,0.1); display: flex; align-items: center; justify-content: space-between; }
+    .table-head-title { font-size: 14px; font-weight: 500; color: var(--dark2); }
+    .table-head-link { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--tan); }
+    .table-head-link:hover { color: var(--dark2); }
+    table { width: 100%; border-collapse: collapse; }
+    thead th { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); padding: 10px 16px; text-align: left; border-bottom: 1px solid rgba(164,131,116,0.1); background: var(--cream); }
+    tbody tr { border-bottom: 1px solid rgba(164,131,116,0.07); transition: background 0.15s; }
+    tbody tr:hover { background: rgba(245,240,234,0.5); }
+    tbody tr:last-child { border-bottom: none; }
+    td { padding: 12px 16px; font-size: 13px; color: var(--dark2); vertical-align: middle; }
+    .status-badge { display: inline-block; font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 4px 10px; border-radius: 20px; font-weight: 500; }
+    .status-pending   { background: #fff8e1; color: #b05c00; }
+    .status-confirmed { background: #e3f2fd; color: #1565c0; }
+    .status-shipped   { background: #e8eaf6; color: #283593; }
+    .status-delivered { background: #e8f5e8; color: #2e7d32; }
+    .status-cancelled { background: #fde8e8; color: #c0392b; }
+    .empty-row td { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; }
+
+    /* ── DUAL TABLES ROW ── */
+    .dual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 28px; }
+    .list-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; border-bottom: 1px solid rgba(164,131,116,0.07); font-size: 13px; }
+    .list-row:last-child { border-bottom: none; }
+    .list-rank { font-family: var(--font-serif); font-size: 15px; color: var(--tan); width: 22px; flex-shrink: 0; }
+    .list-name { flex: 1; color: var(--dark2); font-weight: 500; padding-right: 10px; }
+    .list-sub { font-size: 11px; color: var(--muted); }
+    .list-value { font-size: 12px; color: var(--tan); font-weight: 600; white-space: nowrap; }
+    .stock-badge { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; padding: 3px 9px; border-radius: 20px; font-weight: 500; background: #fde8e8; color: #c0392b; }
+    .stock-badge.zero { background: #2c2318; color: #fff; }
+
+    @media (max-width: 768px) {
+      .dual-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── TOAST ── */
+    .toast { position: fixed; bottom: 24px; right: 24px; background: var(--dark2); color: var(--gold); font-size: 12px; letter-spacing: 1px; padding: 12px 20px; border-radius: 4px; z-index: 999; transform: translateY(60px); opacity: 0; transition: all 0.3s; }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+      .stats-grid-secondary { grid-template-columns: 1fr; }
+      .quick-grid { grid-template-columns: 1fr; }
+      .content { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <span class="sidebar-logo-text">UrbanCloset</span>
+    <span class="sidebar-logo-sub">Admin Panel</span>
+  </div>
+  <nav class="sidebar-nav">
+    <div class="nav-section-label">Overview</div>
+    <a href="admin-dashboard.html" class="nav-link active">
+      <span class="nav-icon">📊</span> Dashboard
+    </a>
+    <div class="sidebar-divider"></div>
+    <div class="nav-section-label">Manage</div>
+    <a href="admin-products.html" class="nav-link">
+      <span class="nav-icon">🛍</span> Products
+    </a>
+    <a href="admin-series.html" class="nav-link">
+      <span class="nav-icon">🗂</span> Series
+    </a>
+    <a href="admin-orders.html" class="nav-link">
+      <span class="nav-icon">📦</span> Orders
+    </a>
+    <div class="sidebar-divider"></div>
+  </nav>
+  <div class="sidebar-foot">
+    <div class="sidebar-user">Signed in as <strong id="sidebarUser">admin</strong></div>
+    <button class="btn-logout" onclick="logout()">Sign Out</button>
+  </div>
+</aside>
+
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title">Dashboard</div>
+    <div class="topbar-right">
+      <a href="../pages/index.html" class="view-store" target="_blank">View Store ↗</a>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- STATS -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Products</div>
+        <div class="stat-value" id="statProducts">—</div>
+        <div class="stat-sub">across all series</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-value" id="statTotalOrders">—</div>
+        <div class="stat-sub">all time</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Paid Orders</div>
+        <div class="stat-value" id="statPaidOrders">—</div>
+        <div class="stat-sub">payment_status = paid</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Revenue</div>
+        <div class="stat-value" id="statRevenue">—</div>
+        <div class="stat-sub">from paid orders</div>
+      </div>
+    </div>
+
+    <div class="stats-grid-secondary">
+      <div class="stat-card">
+        <div class="stat-label">Active Series</div>
+        <div class="stat-value" id="statSeries">—</div>
+        <div class="stat-sub">available &amp; coming soon</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Orders</div>
+        <div class="stat-value" id="statPending">—</div>
+        <div class="stat-sub">awaiting action</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Out of Stock</div>
+        <div class="stat-value" id="statOut">—</div>
+        <div class="stat-sub">products at 0 stock</div>
+      </div>
+    </div>
+
+    <!-- QUICK LINKS -->
+    <div class="section-title">Quick Access</div>
+    <div class="quick-grid">
+      <a href="admin-products.html" class="quick-card">
+        <div class="quick-icon">🛍</div>
+        <div>
+          <div class="quick-label">Manage</div>
+          <div class="quick-title">Products</div>
+        </div>
+      </a>
+      <a href="admin-series.html" class="quick-card">
+        <div class="quick-icon">🗂</div>
+        <div>
+          <div class="quick-label">Manage</div>
+          <div class="quick-title">Series</div>
+        </div>
+      </a>
+      <a href="admin-orders.html" class="quick-card">
+        <div class="quick-icon">📦</div>
+        <div>
+          <div class="quick-label">Manage</div>
+          <div class="quick-title">Orders</div>
+        </div>
+      </a>
+    </div>
+
+    <!-- RECENT ORDERS -->
+    <div class="table-card">
+      <div class="table-head">
+        <span class="table-head-title">Recent Orders</span>
+        <a href="admin-orders.html" class="table-head-link">View All →</a>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Order</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody id="recentOrdersBody">
+          <tr class="empty-row"><td colspan="6">Loading…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- BEST SELLERS / LOW STOCK -->
+    <div class="dual-grid">
+      <div class="table-card">
+        <div class="table-head">
+          <span class="table-head-title">Best Sellers</span>
+        </div>
+        <div id="bestSellersBody">
+          <div class="list-row"><span class="list-sub">Loading…</span></div>
+        </div>
+      </div>
+      <div class="table-card">
+        <div class="table-head">
+          <span class="table-head-title">Low Stock Products</span>
+          <a href="admin-products.html" class="table-head-link">Manage →</a>
+        </div>
+        <div id="lowStockBody">
+          <div class="list-row"><span class="list-sub">Loading…</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var token = sessionStorage.getItem('uc_admin_token');
+if (!token) window.location.href = 'admin-login.html';
+
+document.getElementById('sidebarUser').textContent =
+  sessionStorage.getItem('uc_admin_user') || 'admin';
+
+function authHeader() {
+  return { 'Authorization': 'Bearer ' + token };
+}
+
+function logout() {
+  sessionStorage.removeItem('uc_admin_token');
+  sessionStorage.removeItem('uc_admin_user');
+  window.location.href = 'admin-login.html';
+}
+
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+
+var allProducts = [];
+
+async function loadDashboard() {
+  try {
+    // Products
+    var pRes = await fetch(API_URL + '/admin/products', { headers: authHeader() });
+    if (pRes.ok) {
+      var pJson = await pRes.json();
+      var products = Array.isArray(pJson.data) ? pJson.data : (Array.isArray(pJson) ? pJson : []);
+      products = products.filter(function(p){ return p && !p.is_deleted; });
+      allProducts = products;
+      document.getElementById('statProducts').textContent = products.length;
+      var out = products.filter(function(p){ return (p.stock || 0) === 0; }).length;
+      document.getElementById('statOut').textContent = out;
+      renderLowStock(products);
+    }
+  } catch(e) { console.warn('products load failed', e); }
+
+  try {
+    // Series
+    var sRes = await fetch(API_URL + '/admin/series', { headers: authHeader() });
+    if (sRes.ok) {
+      var sJson = await sRes.json();
+      var series = Array.isArray(sJson.data) ? sJson.data : (Array.isArray(sJson) ? sJson : []);
+      document.getElementById('statSeries').textContent = series.length;
+    }
+  } catch(e) { console.warn('series load failed', e); }
+
+  try {
+    // Orders
+    var oRes = await fetch(API_URL + '/admin/orders', { headers: authHeader() });
+    if (oRes.ok) {
+      var oJson = await oRes.json();
+      var orders = Array.isArray(oJson.data) ? oJson.data : (Array.isArray(oJson) ? oJson : []);
+
+      var pending = orders.filter(function(o){ return o.status === 'pending'; }).length;
+      document.getElementById('statPending').textContent = pending;
+
+      var paidOrders = orders.filter(function(o){ return o.payment_status === 'paid'; });
+      document.getElementById('statTotalOrders').textContent = orders.length;
+      document.getElementById('statPaidOrders').textContent = paidOrders.length;
+
+      var revenue = paidOrders.reduce(function(sum, o){ return sum + parseFloat(o.total || 0); }, 0);
+      document.getElementById('statRevenue').textContent = 'KD ' + revenue.toFixed(3);
+
+      renderBestSellers(orders);
+
+      // Recent 5
+      var recent = orders.slice(0, 5);
+      if (!recent.length) {
+        document.getElementById('recentOrdersBody').innerHTML =
+          '<tr class="empty-row"><td colspan="6">No orders yet.</td></tr>';
+        return;
+      }
+      document.getElementById('recentOrdersBody').innerHTML = recent.map(function(o) {
+        var items = Array.isArray(o.items) ? o.items : [];
+        var itemStr = items.map(function(i){ return (i.brand||'') + ' ' + (i.name||i.product_name||''); }).join(', ').slice(0, 40) || '—';
+        var total = 'KD ' + parseFloat(o.total || 0).toFixed(3);
+        var date = o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short' }) : '—';
+        var st = (o.status || 'pending').toLowerCase();
+        return '<tr>' +
+          '<td style="font-size:11px;color:var(--muted);">#' + String(o.id).slice(0,8) + '</td>' +
+          '<td style="font-weight:500;">' + escHtml(o.customer_name || '—') + '</td>' +
+          '<td style="font-size:12px;">' + escHtml(itemStr) + '</td>' +
+          '<td style="color:var(--tan);font-weight:500;">' + total + '</td>' +
+          '<td><span class="status-badge status-' + st + '">' + st + '</span></td>' +
+          '<td style="font-size:11px;color:var(--muted);">' + date + '</td>' +
+        '</tr>';
+      }).join('');
+    }
+  } catch(e) {
+    console.warn('orders load failed', e);
+    document.getElementById('recentOrdersBody').innerHTML =
+      '<tr class="empty-row"><td colspan="6">Could not load orders.</td></tr>';
+  }
+}
+
+function renderBestSellers(orders) {
+  var tally = {}; // id -> { name, brand, qty, revenue }
+  orders.forEach(function(o) {
+    var items = Array.isArray(o.items) ? o.items : [];
+    items.forEach(function(i) {
+      var id = i.id != null ? String(i.id) : (i.name || 'unknown');
+      var qty = parseInt(i.qty, 10) || 1;
+      var price = parseFloat(i.price || 0);
+      if (!tally[id]) {
+        tally[id] = { name: i.name || i.product_name || '—', brand: i.brand || '', qty: 0, revenue: 0 };
+      }
+      tally[id].qty += qty;
+      tally[id].revenue += qty * price;
+    });
+  });
+
+  var ranked = Object.keys(tally).map(function(id){ return tally[id]; })
+    .sort(function(a, b){ return b.qty - a.qty; })
+    .slice(0, 5);
+
+  var el = document.getElementById('bestSellersBody');
+  if (!ranked.length) {
+    el.innerHTML = '<div class="list-row"><span class="list-sub">No sales data yet.</span></div>';
+    return;
+  }
+
+  el.innerHTML = ranked.map(function(p, idx) {
+    return '<div class="list-row">' +
+      '<span class="list-rank">' + (idx + 1) + '</span>' +
+      '<span class="list-name">' + escHtml((p.brand ? p.brand + ' ' : '') + p.name) +
+        '<div class="list-sub">' + p.qty + ' sold</div></span>' +
+      '<span class="list-value">KD ' + p.revenue.toFixed(3) + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function renderLowStock(products) {
+  var LOW_STOCK_THRESHOLD = 5;
+  var low = products
+    .filter(function(p){ return (p.stock || 0) > 0 && (p.stock || 0) <= LOW_STOCK_THRESHOLD; })
+    .sort(function(a, b){ return (a.stock || 0) - (b.stock || 0); })
+    .slice(0, 5);
+
+  var el = document.getElementById('lowStockBody');
+  if (!low.length) {
+    el.innerHTML = '<div class="list-row"><span class="list-sub">No low-stock products.</span></div>';
+    return;
+  }
+
+  el.innerHTML = low.map(function(p) {
+    var stock = p.stock || 0;
+    return '<div class="list-row">' +
+      '<span class="list-name">' + escHtml((p.brand ? p.brand + ' ' : '') + (p.name || '—')) + '</span>' +
+      '<span class="stock-badge' + (stock === 0 ? ' zero' : '') + '">' + stock + ' left</span>' +
+    '</div>';
+  }).join('');
+}
+
+function escHtml(str) {
+  return String(str||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>

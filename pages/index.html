@@ -1,0 +1,1890 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>UrbanCloset — Authentic Preloved Designer Bags</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="config.js"></script>
+  <script src="cart.js"></script>
+  <script src="currency.js"></script>
+  
+  <style>
+    /* ── VARIABLES ─────────────────────────────────────── */
+    :root {
+      --dark:    #150d05;
+      --dark2:   #241a0f;
+      --gold:    #B8936A;
+      --tan:     #8B5E4A;
+      --sand:    #C4B09A;
+      --cream:   #F0E8DE;
+      --white:   #ffffff;
+      --muted:   #7a6a5a;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans:  'DM Sans', sans-serif;
+    }
+
+    /* ── RESET ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--sand); font-family: var(--font-sans); color: var(--dark2); }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ── TOPBAR ─────────────────────────────────────────── */
+    .topbar {
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 7px 16px;
+    }
+
+    /* ── NAVBAR ─────────────────────────────────────────── */
+    .navbar {
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 28px;
+      border-bottom: 1px solid var(--tan);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .nav-ham {
+      font-size: 22px;
+      color: var(--dark2);
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 3px;
+      transition: background 0.2s;
+      line-height: 1;
+    }
+    .nav-ham:hover { background: rgba(44,35,24,0.12); }
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--dark2);
+      letter-spacing: 3px;
+    }
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .nav-pill {
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 9px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+    }
+    .nav-icons { font-size: 16px; color: var(--dark2); display: flex; gap: 12px; cursor: pointer; }
+    .nav-cta {
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 9px;
+      padding: 6px 14px;
+      border-radius: 2px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: opacity 0.2s;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+    .cart-count {
+      background: var(--tan);
+      color: #fff;
+      font-size: 9px;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      top: -6px;
+      left: -8px;
+    }
+
+    /* ── SIDE DRAWER ────────────────────────────────────── */
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 299;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+    .side-drawer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 260px;
+      height: 100%;
+      background: var(--dark);
+      z-index: 300;
+      transform: translateX(-100%);
+      transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+      display: flex;
+      flex-direction: column;
+    }
+    .side-drawer.open { transform: translateX(0); }
+    .drawer-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid rgba(203,173,141,0.12);
+    }
+    .drawer-logo {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      color: var(--gold);
+      letter-spacing: 2px;
+    }
+    .drawer-close {
+      font-size: 20px;
+      color: rgba(203,173,141,0.5);
+      cursor: pointer;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .drawer-close:hover { color: var(--gold); }
+    .drawer-nav { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .drawer-nav a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 18px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(203,173,141,0.75);
+      border-left: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .drawer-nav a svg { flex-shrink: 0; opacity: 0.7; }
+    .drawer-nav a:hover svg, .drawer-nav a.active svg { opacity: 1; }
+    .drawer-nav a:hover, .drawer-nav a.active {
+      color: var(--gold);
+      border-left-color: var(--tan);
+      background: rgba(203,173,141,0.05);
+    }
+    .drawer-divider { height: 1px; background: rgba(203,173,141,0.1); margin: 6px 18px; }
+    .drawer-section-label {
+      padding: 8px 18px 3px;
+      font-size: 8px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: rgba(203,173,141,0.35);
+    }
+    .drawer-badge {
+      background: var(--tan);
+      color: #fff;
+      font-size: 8px;
+      padding: 1px 6px;
+      border-radius: 10px;
+      margin-left: auto;
+    }
+    .drawer-foot {
+      padding: 14px 18px;
+      border-top: 1px solid rgba(203,173,141,0.1);
+      font-size: 10px;
+      color: rgba(203,173,141,0.45);
+      line-height: 1.7;
+    }
+
+    /* ── HERO ───────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      height: 520px;
+      background: var(--dark);
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+    }
+    .hero-img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+    }
+    .hero-grad {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(21,13,5,0.96) 0%, rgba(21,13,5,0.82) 30%, rgba(21,13,5,0.35) 60%, rgba(21,13,5,0.05) 100%);
+      z-index: 1;
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 56px;
+      max-width: 520px;
+    }
+    .hero-eyebrow {
+      font-family: var(--font-sans);
+      font-size: 10px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 14px;
+    }
+    .hero-h1 {
+      font-family: var(--font-serif);
+      font-size: 64px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.0;
+      margin-bottom: 16px;
+    }
+    .hero-h1 em { font-style: italic; color: var(--gold); }
+    .hero-badges {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .hbadge {
+      background: rgba(255,255,255,0.12);
+      color: rgba(255,255,255,0.85);
+      font-size: 9px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      letter-spacing: 1px;
+      border: 1px solid rgba(255,255,255,0.15);
+    }
+    .hero-sub {
+      font-size: 13px;
+      color: rgba(255,255,255,0.75);
+      line-height: 1.7;
+      max-width: 320px;
+      margin-bottom: 24px;
+    }
+    .hero-btns { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-gold {
+      background: var(--tan);
+      color: #fff;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 12px 24px;
+      border-radius: 2px;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+    .btn-gold:hover { background: #8a6e62; }
+    .btn-outline {
+      border: 1px solid rgba(255,255,255,0.45);
+      color: #fff;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 12px 24px;
+      border-radius: 2px;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+    .btn-outline:hover { background: rgba(255,255,255,0.08); }
+
+    /* ── MARQUEE ─────────────────────────────────────────── */
+    .marquee-bar {
+      background: var(--tan);
+      color: #fff;
+      font-size: 9px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 9px;
+      text-align: center;
+      overflow: hidden;
+    }
+    .marquee-inner {
+      display: inline-block;
+      white-space: nowrap;
+      animation: marquee 22s linear infinite;
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    /* ── SECTIONS ────────────────────────────────────────── */
+    .section { padding: 48px 32px; }
+    .section-head { margin-bottom: 28px; }
+    .section-title {
+      font-family: var(--font-serif);
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--dark2);
+      margin-bottom: 4px;
+    }
+    .section-sub {
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ── PRODUCT GRID ────────────────────────────────────── */
+    .product-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 16px;
+}
+    .product-card {
+      background: var(--gold);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.22s, box-shadow 0.22s;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 32px rgba(26,16,8,0.18);
+    }
+    .product-img-wrap {
+      aspect-ratio: 3/4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .product-img-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .product-img-placeholder {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .product-img-placeholder svg { width: 64px; opacity: 0.7; }
+    .product-condition-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(26,16,8,0.72);
+      color: var(--gold);
+      font-size: 8px;
+      letter-spacing: 1px;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+    .product-info { padding: 12px; }
+    .product-brand {
+      font-size: 8px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: #7a5c3a;
+      margin-bottom: 3px;
+    }
+    .product-name {
+      font-family: var(--font-serif);
+      font-size: 15px;
+      color: var(--dark2);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+    .product-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .product-price {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--tan);
+    }
+    .product-code { font-size: 9px; color: var(--muted); }
+    .product-stars { font-size: 10px; color: var(--tan); margin-bottom: 4px; }
+    .product-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+    }
+    .product-btn {
+      flex: 1;
+      font-size: 9px;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      padding: 8px 6px;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: opacity 0.2s, background 0.2s;
+      text-align: center;
+    }
+    .product-btn-cart {
+      background: rgba(255,255,255,0.5);
+      color: var(--dark2);
+      border: 1px solid rgba(36,26,15,0.25);
+    }
+    .product-btn-cart:hover { background: rgba(255,255,255,0.8); }
+    .product-btn-buy {
+      background: var(--dark2);
+      color: var(--gold);
+      border: none;
+    }
+    .product-btn-buy:hover { opacity: 0.85; }
+
+    /* empty/loading state */
+    .grid-loading {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 48px;
+      color: var(--muted);
+      font-size: 13px;
+      letter-spacing: 1px;
+    }
+    .skeleton {
+      background: linear-gradient(90deg, rgba(203,173,141,0.4) 25%, rgba(203,173,141,0.6) 50%, rgba(203,173,141,0.4) 75%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+      border-radius: 4px;
+    }
+    @keyframes shimmer {
+      from { background-position: -200% 0; }
+      to   { background-position: 200% 0; }
+    }
+
+    /* ── SERIES SECTION ──────────────────────────────────── */
+    .series-section {
+      padding: 48px 32px;
+      background: var(--cream);
+    }
+    .series-wrap { position: relative; }
+    .series-scroll {
+      display: flex;
+      gap: 14px;
+      overflow: hidden;
+    }
+    .series-track {
+      display: flex;
+      gap: 14px;
+      transition: transform 0.35s cubic-bezier(.4,0,.2,1);
+    }
+    .series-card {
+      min-width: 160px;
+      background: #fff;
+      border-radius: 8px;
+      padding: 20px 16px 16px;
+      border: 1px solid rgba(164,131,116,0.18);
+      position: relative;
+      overflow: hidden;
+      flex-shrink: 0;
+      transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    .series-card-bg {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      z-index: 0;
+    }
+    .series-card-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(26,16,8,0.45) 0%, rgba(26,16,8,0.72) 100%);
+    }
+    .series-card.has-image .series-card-bg { opacity: 1; }
+    .series-card.has-image { border-color: transparent; }
+    .series-card.has-image .series-num { color: rgba(255,255,255,0.55); }
+    .series-card.has-image .series-name { color: #fff; }
+    .series-card.has-image .series-desc { color: rgba(255,255,255,0.7); }
+    .series-card.has-image .series-status.avail { color: #8ee08c; }
+    .series-card.has-image .series-status.soon  { color: #d4c4a0; }
+    .series-card.has-image .series-link.avail { color: var(--gold); }
+    .series-card-content { position: relative; z-index: 1; }
+    .series-card:hover {
+      transform: scale(1.03);
+      box-shadow: 0 8px 28px rgba(139,94,74,0.22);
+      border-color: rgba(184,147,106,0.45);
+    }
+    .series-card.available:hover {
+      box-shadow: 0 8px 28px rgba(92,138,90,0.18);
+    }
+    .series-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(to right, var(--gold), var(--tan));
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    .series-card:hover::before { opacity: 1; }
+    .series-card.soon {
+      cursor: default;
+    }
+    .series-card.soon:hover {
+      transform: scale(1.015);
+      box-shadow: 0 4px 16px rgba(164,131,116,0.15);
+    }
+    .series-num {
+      font-family: var(--font-serif);
+      font-size: 64px;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+      margin-bottom: 6px;
+    }
+    .series-card.available .series-num { color: var(--tan); }
+    .series-name {
+      font-family: var(--font-serif);
+      font-size: 16px;
+      color: var(--dark2);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .series-status {
+      font-size: 8px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .series-status.avail { color: #5c8a5a; }
+    .series-status.soon  { color: #9a8a7a; }
+    .status-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .status-dot.avail { background: #5c8a5a; }
+    .status-dot.soon  { background: #c4b090; animation: dot-pulse 2s infinite; }
+    @keyframes dot-pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .series-desc { font-size: 11px; color: var(--muted); line-height: 1.5; margin-bottom: 12px; }
+    .series-link { font-size: 11px; }
+    .series-link.avail { color: var(--tan); }
+    .series-link.soon  { color: #b0a090; }
+    .series-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 32px; height: 32px;
+      background: var(--dark2);
+      color: var(--gold);
+      border-radius: 50%;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 5;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+    .series-btn:hover { opacity: 1; }
+    .series-btn:disabled { opacity: 0.2; cursor: default; }
+    .series-btn.prev { left: -16px; }
+    .series-btn.next { right: -16px; }
+
+    /* ── AS WORN ─────────────────────────────────────────── */
+    .worn-section { padding: 48px 32px; background: var(--dark); }
+    .worn-section .section-title { color: var(--gold); }
+    .worn-section .section-sub   { color: rgba(203,173,141,0.55); }
+    .worn-grid {
+      display: grid;
+     grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .worn-card {
+      position: relative;
+      border-radius: 4px;
+      overflow: hidden;
+      aspect-ratio: 3/4;
+      cursor: pointer;
+    }
+    .worn-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center top;
+      transition: transform 0.4s;
+    }
+    .worn-card:hover img { transform: scale(1.04); }
+    .worn-card-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(26,16,8,0.8) 0%, transparent 55%);
+    }
+    .worn-card-label {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      right: 12px;
+    }
+    .worn-brand { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; }
+    .worn-name  { font-family: var(--font-serif); font-size: 14px; color: #fff; }
+    .worn-price { font-size: 11px; font-weight: 500; color: var(--gold); margin-top: 3px; }
+
+    /* ── EDITORIAL STRIP ─────────────────────────────────── */
+    .editorial {
+      background: var(--tan);
+      padding: 28px 32px;
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+    .editorial-icon {
+      width: 56px;
+      flex-shrink: 0;
+      opacity: 0.7;
+    }
+    .editorial-eyebrow {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.65);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .editorial-quote {
+      font-family: var(--font-serif);
+      font-size: 17px;
+      font-style: italic;
+      color: #fff;
+      line-height: 1.55;
+    }
+
+    /* ── PAYMENT NOTICE ──────────────────────────────────── */
+    .payment-notice {
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-align: center;
+      padding: 12px 16px;
+    }
+
+    /* ── TRUST SECTION ──────────────────────────────────── */
+.trust-section { background: var(--cream); padding: 56px 32px; }
+.trust-section .section-title { margin-bottom: 4px; }
+
+.trust-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(164,131,116,0.15);
+  border: 1px solid rgba(164,131,116,0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 28px 0 36px;
+}
+.trust-card {
+  background: #fff;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.trust-card-icon { color: var(--tan); }
+.trust-card-title {
+  font-family: var(--font-serif);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--dark2);
+}
+.trust-card-text { font-size: 11px; color: var(--muted); line-height: 1.65; }
+
+.trust-accordions { display: flex; flex-direction: column; gap: 1px; }
+.accord {
+  border: 1px solid rgba(164,131,116,0.18);
+  border-radius: 3px;
+  overflow: hidden;
+  background: #fff;
+}
+.accord-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  gap: 12px;
+}
+.accord-head-left { display: flex; align-items: center; gap: 12px; }
+.accord-label {
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.accord-title {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--dark2);
+}
+.accord-tag {
+  font-size: 9px;
+  letter-spacing: 1px;
+  background: var(--tan);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.accord-arrow {
+  font-size: 18px;
+  color: var(--muted);
+  transition: transform 0.3s;
+  flex-shrink: 0;
+  line-height: 1;
+}
+.accord.open .accord-arrow { transform: rotate(180deg); }
+.accord-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.35s cubic-bezier(.4,0,.2,1);
+}
+.accord.open .accord-body { max-height: 600px; }
+.accord-inner {
+  padding: 0 20px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.accord-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(164,131,116,0.1);
+}
+.accord-row:last-child { border-bottom: none; }
+.accord-num {
+  font-family: var(--font-serif);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  min-width: 24px;
+  flex-shrink: 0;
+}
+.accord-row-text { font-size: 12px; color: var(--muted); line-height: 1.65; }
+.accord-row-text strong { color: var(--dark2); font-weight: 500; }
+.accord-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  background: var(--dark2);
+  color: var(--gold);
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 10px 20px;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+  align-self: flex-start;
+}
+.accord-cta:hover { opacity: 0.85; }
+
+@media (max-width: 640px) {
+  .trust-section { padding: 40px 16px; }
+  .trust-cards { grid-template-columns: repeat(2, 1fr); }
+}
+
+    /* ── HOW TO ORDER ─────────────────────────────────────── */
+.hto-section {
+  background: #fff;
+  padding: 40px 32px;
+}
+.hto-section .section-title { margin-bottom: 4px; }
+.hto-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: rgba(164,131,116,0.15);
+  border: 1px solid rgba(164,131,116,0.15);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 24px 0 28px;
+}
+.hto-card {
+  background: #fff;
+  padding: 20px 18px;
+}
+.hto-card-num {
+  font-family: var(--font-serif);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--gold);
+  opacity: 0.5;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+.hto-card-title {
+  font-family: var(--font-serif);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--dark2);
+  margin-bottom: 5px;
+}
+.hto-card-text {
+  font-size: 11px;
+  color: var(--muted);
+  line-height: 1.65;
+}
+.hto-pay-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+.hto-pay-badge {
+  font-size: 9px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  border: 1px solid rgba(164,131,116,0.3);
+  color: var(--muted);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+.hto-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--tan);
+  color: #fff;
+  font-size: 9px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 11px 24px;
+  border-radius: 2px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+.hto-cta:hover { opacity: 0.85; }
+@media (max-width: 640px) {
+  .hto-section { padding: 32px 16px; }
+  .hto-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+    /* ── FOOTER SOCIAL / QR ───────────────────────────────── */
+    .footer-social {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .footer-social a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 1px solid rgba(184,147,106,0.3);
+      color: var(--gold);
+      font-size: 14px;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+    .footer-social a:hover { background: rgba(184,147,106,0.15); border-color: var(--gold); }
+    .footer-qr {
+      margin-top: 14px;
+    }
+    .footer-qr-label {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: rgba(184,147,106,0.4);
+      margin-bottom: 8px;
+    }
+    .footer-qr svg {
+      display: block;
+    }
+
+    /* ── FOOTER ──────────────────────────────────────────── */
+    .footer { background: var(--dark2); padding: 40px 32px 24px; }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 28px;
+    }
+    .footer-logo {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      color: var(--gold);
+      letter-spacing: 3px;
+      margin-bottom: 8px;
+    }
+    .footer-tagline {
+      font-size: 11px;
+      color: rgba(203,173,141,0.65);
+      line-height: 1.7;
+    }
+    .footer-contact {
+      font-size: 11px;
+      color: rgba(203,173,141,0.55);
+      margin-top: 10px;
+      line-height: 1.8;
+    }
+    .footer-col h4 {
+      font-size: 9px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 12px;
+    }
+    .footer-col a {
+      display: block;
+      font-size: 11px;
+      color: rgba(203,173,141,0.6);
+      margin-bottom: 8px;
+      transition: color 0.2s;
+    }
+    .footer-col a:hover { color: var(--gold); }
+    .footer-bottom {
+      border-top: 1px solid rgba(203,173,141,0.15);
+      padding-top: 16px;
+      font-size: 10px;
+      color: rgba(203,173,141,0.35);
+      text-align: center;
+    }
+
+    /* ── MOBILE ──────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .navbar { padding: 10px 16px; }
+      .nav-logo { font-size: 18px; }
+      .nav-cta { display: none; }
+      .hero { height: 420px; }
+      .hero-content { padding: 0 20px; }
+      .hero-h1 { font-size: 44px; }
+      .section { padding: 32px 16px; }
+      .series-section { padding: 32px 16px; }
+      .worn-section { padding: 32px 16px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
+      .footer { padding: 32px 16px 20px; }
+      .editorial { flex-direction: column; text-align: center; }
+      .auth-promise { padding: 40px 16px; }
+      .tpa-section { padding: 40px 16px; }
+      .consign-section { padding: 40px 16px; }
+      .consign-step::after { display: none; }
+      .consign-steps { gap: 24px; }
+      .hto-section { padding: 40px 16px; }
+
+      .product-grid {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 0;
+  -webkit-overflow-scrolling: touch;
+}
+.product-card {
+  min-width: 100%;
+  scroll-snap-align: start;
+}
+
+.worn-grid {
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  gap: 12px;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 8px;
+}
+.worn-card {
+  min-width: 80%;
+  scroll-snap-align: start;
+}
+    }
+  </style>
+</head>
+<body>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- SIDE DRAWER -->
+<aside class="side-drawer" id="sideDrawer">
+  <div class="drawer-head">
+    <div class="drawer-logo">UrbanCloset</div>
+    <div class="drawer-close" onclick="closeDrawer()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <nav class="drawer-nav">
+    <a href="index.html" class="active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
+    <a href="#new-arrivals"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>New Arrivals</a>
+    <a href="shop.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>Shop All</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section-label">Collections</div>
+    <div id="drawerSeriesLinks" style="display:contents;">
+    <a href="shop.html?series=Series+1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 1</a>
+    <a href="shop.html?series=Series+2"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 2</a>
+    <a href="shop.html?series=Series+3"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 3</a>
+    <a href="shop.html?series=Series+4"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 4</a>
+    <a href="shop.html?series=Series+5"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 5</a>
+    <a href="shop.html?series=Series+6"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 6</a>
+    <a href="shop.html?series=Series+7"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 7</a>
+    <a href="shop.html?series=Series+8"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 8</a>
+    <a href="shop.html?series=Series+9"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 9</a>
+    <a href="shop.html?series=Series+10"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 10</a>
+    </div><!-- /drawerSeriesLinks -->
+    <div class="drawer-divider"></div>
+
+    <a href="checkout.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Cart <span class="drawer-badge" id="cartDrawerCount">0</span></a>
+    <a href="orders.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>My Orders</a>    <div class="drawer-divider"></div>
+    <a href="#how-to-order"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>How to Order</a>
+    <a href="#authenticity"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Authenticity</a>
+    <a href="#consignment"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Consignment</a>
+    <a href="https://wa.me/96590910123" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>Contact Us</a>
+  </nav>
+  <div class="drawer-foot">
+    <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Kuwait, Salmiya</div>
+    <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>+965 9091 0123</div>
+    <div style="display:flex;align-items:flex-start;gap:7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>admin@urbancloset.kw</div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<div class="topbar">New Arrivals &nbsp;·&nbsp; Collections &nbsp;·&nbsp; Authenticity &nbsp;·&nbsp; Consign &nbsp;·&nbsp; How to Order &nbsp;·&nbsp; Contact</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-ham" onclick="openDrawer()">≡</div>
+  <a href="index.html" class="nav-logo">UrbanCloset</a>
+  <div class="nav-actions">
+    <div class="nav-pill" id="currencyToggle" onclick="toggleCurrency()" style="cursor:pointer;">KWD ▾</div>
+    <div class="nav-icons">
+     <div style="position:relative;">
+  <div id="accountBtn" onclick="toggleAccountPanel()" style="cursor:pointer;display:flex;align-items:center;">
+    <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+
+  <!-- ACCOUNT PANEL -->
+  <div id="accountPanel" style="display:none;position:absolute;top:32px;right:-12px;width:290px;background:#fff;border:1px solid rgba(184,147,106,0.25);border-radius:6px;box-shadow:0 8px 32px rgba(36,26,15,0.13);z-index:999;font-family:'DM Sans',sans-serif;overflow:hidden;">
+
+    <!-- Guest view (not logged in) -->
+    <div id="panelGuest" style="padding:24px 20px;text-align:center;">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C4B09A" stroke-width="1.5" style="margin:0 auto 10px;display:block;"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:#241a0f;margin-bottom:4px;">Welcome</div>
+      <div style="font-size:11px;color:#7a6a5a;margin-bottom:16px;">Sign in to view your account.</div>
+      <a href="login.html" style="display:block;background:#8B5E4A;color:#fff;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:11px;border-radius:3px;text-decoration:none;margin-bottom:8px;">Sign In</a>
+      <a href="register.html" style="display:block;border:1.5px solid rgba(139,94,74,0.35);color:#8B5E4A;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;text-decoration:none;">Create Account</a>
+    </div>
+
+    <!-- Logged-in view -->
+    <div id="panelUser" style="display:none;">
+
+      <!-- Profile header -->
+      <div style="background:linear-gradient(135deg,#241a0f 0%,#3a2518 100%);padding:20px;display:flex;align-items:center;gap:12px;">
+        <div id="panelAvatar" style="width:44px;height:44px;border-radius:50%;background:#B8936A;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
+        <div style="min-width:0;">
+          <div id="panelName" style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+          <div id="panelEmail" style="font-size:10px;color:rgba(196,176,154,0.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;"></div>
+        </div>
+      </div>
+
+      <!-- View mode -->
+      <div id="panelView" style="padding:14px 16px 16px;">
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a6a5a;margin-bottom:10px;">Account Details</div>
+        <div style="background:#F0E8DE;border-radius:4px;padding:10px 12px;margin-bottom:8px;">
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#7a6a5a;margin-bottom:2px;">Full Name</div>
+          <div id="viewName" style="font-size:13px;color:#241a0f;"></div>
+        </div>
+        <div style="background:#F0E8DE;border-radius:4px;padding:10px 12px;margin-bottom:14px;">
+          <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#7a6a5a;margin-bottom:2px;">Email Address</div>
+          <div id="viewEmail" style="font-size:13px;color:#241a0f;word-break:break-all;"></div>
+        </div>
+       <a href="orders.html" style="display:block;width:100%;background:#F0E8DE;border:1.5px solid rgba(139,94,74,0.3);color:#8B5E4A;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;margin-bottom:8px;font-family:'DM Sans',sans-serif;text-align:center;text-decoration:none;">My Orders</a>
+        <button onclick="openEditMode()" style="width:100%;background:#F0E8DE;border:1.5px solid rgba(139,94,74,0.3);color:#8B5E4A;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;margin-bottom:8px;font-family:'DM Sans',sans-serif;">Edit Profile</button>
+        <button onclick="accountLogout()" style="width:100%;background:rgba(192,57,43,0.07);border:1.5px solid rgba(192,57,43,0.2);color:#c0392b;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;font-family:'DM Sans',sans-serif;">Sign Out</button>
+      </div>
+
+      <!-- Edit mode -->
+      <div id="panelEdit" style="display:none;padding:14px 16px 16px;">
+        <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a6a5a;margin-bottom:10px;">Edit Profile</div>
+
+        <div style="margin-bottom:10px;">
+          <label style="display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a6a5a;margin-bottom:4px;">Full Name</label>
+          <input id="editName" type="text" style="width:100%;background:#F0E8DE;border:1.5px solid rgba(184,147,106,0.3);border-radius:3px;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;color:#241a0f;outline:none;" onfocus="this.style.borderColor='#B8936A'" onblur="this.style.borderColor='rgba(184,147,106,0.3)'"/>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label style="display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a6a5a;margin-bottom:4px;">Email Address</label>
+          <input id="editEmail" type="email" style="width:100%;background:#F0E8DE;border:1.5px solid rgba(184,147,106,0.3);border-radius:3px;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;color:#241a0f;outline:none;" onfocus="this.style.borderColor='#B8936A'" onblur="this.style.borderColor='rgba(184,147,106,0.3)'"/>
+        </div>
+        <div style="margin-bottom:14px;">
+          <label style="display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a6a5a;margin-bottom:4px;">New Password <span style="color:rgba(122,106,90,0.5);font-size:8px;letter-spacing:0;">(leave blank to keep current)</span></label>
+          <input id="editPassword" type="password" placeholder="••••••••" style="width:100%;background:#F0E8DE;border:1.5px solid rgba(184,147,106,0.3);border-radius:3px;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;color:#241a0f;outline:none;" onfocus="this.style.borderColor='#B8936A'" onblur="this.style.borderColor='rgba(184,147,106,0.3)'"/>
+        </div>
+
+        <div id="editMsg" style="display:none;font-size:11px;text-align:center;padding:7px;border-radius:3px;margin-bottom:10px;"></div>
+
+        <div style="display:flex;gap:8px;">
+          <button onclick="saveProfile()" style="flex:1;background:#8B5E4A;color:#fff;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;">Save</button>
+          <button onclick="closeEditMode()" style="flex:1;background:#F0E8DE;border:1.5px solid rgba(139,94,74,0.25);color:#7a6a5a;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+      <span onclick="goCart()" style="cursor:pointer;position:relative;display:inline-flex;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="cart-count" id="cartBadge">0</span></span>
+    </div>
+    <div class="nav-cta" onclick="window.open('https://wa.me/96590910123','_blank')">Get in Touch</div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+<img class="hero-img" src="images/banners/herologo.webp" alt="UrbanCloset"/>
+  <div class="hero-grad"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">New Collection 2026</div>
+    <h1 class="hero-h1">Carry<br/>Something<br/><em>Timeless.</em></h1>
+    <div class="hero-badges">
+      <span class="hbadge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Authenticated</span>
+      <span class="hbadge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Ships to Gulf</span>
+      <span class="hbadge"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:3px;"><polyline points="20 6 9 17 4 12"/></svg>Preloved Luxury</span>
+    </div>
+    <p class="hero-sub">Authentic preloved designer bags, curated for the bold &amp; intentional.</p>
+    <div class="hero-btns">
+      <div class="btn-gold" onclick="window.location.href='shop.html'">Shop Now</div>
+      <div class="btn-outline" onclick="document.getElementById('new-arrivals').scrollIntoView({behavior:'smooth'})">New Arrivals</div>
+    </div>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-bar">
+  <span class="marquee-inner">
+    FREE SHIPPING TO KUWAIT · UAE · BAHRAIN · QATAR &nbsp;•&nbsp;
+    NEW DROPS EVERY FRIDAY &nbsp;•&nbsp;
+    FOLLOW US @URBANCLOSET &nbsp;•&nbsp;
+    ALL BAGS 100% AUTHENTICATED &nbsp;•&nbsp;
+    FREE SHIPPING TO KUWAIT · UAE · BAHRAIN · QATAR &nbsp;•&nbsp;
+    NEW DROPS EVERY FRIDAY &nbsp;•&nbsp;
+    FOLLOW US @URBANCLOSET &nbsp;•&nbsp;
+    ALL BAGS 100% AUTHENTICATED &nbsp;•&nbsp;
+  </span>
+</div>
+
+<!-- NEW ARRIVALS -->
+<section class="section" id="new-arrivals">
+  <div class="section-head">
+    <h2 class="section-title">New Arrivals</h2>
+    <span class="section-sub">Newest additions to the collection</span>
+  </div>
+  <div class="product-grid" id="productGrid">
+    <!-- Products loaded by api.js -->
+    <div class="grid-loading">Loading collection…</div>
+  </div>
+</section>
+
+<!-- COLLECTIONS / SERIES -->
+<section class="series-section">
+  <div class="section-head">
+    <h2 class="section-title">Collections</h2>
+    <span class="section-sub">Browse by series</span>
+  </div>
+  <div class="series-wrap">
+    <button class="series-btn prev" id="seriesPrev" onclick="scrollSeries(-1)">‹</button>
+    <div class="series-scroll">
+      <div class="series-track" id="seriesTrack">
+        <!-- Populated dynamically from /series API -->
+      </div>
+    </div>
+    <button class="series-btn next" id="seriesNext" onclick="scrollSeries(1)">›</button>
+  </div>
+</section>
+
+<!-- AS WORN -->
+<section class="worn-section">
+  <div class="section-head">
+    <h2 class="section-title">As Worn</h2>
+    <span class="section-sub">Curated looks, real style</span>
+  </div>
+  <div class="worn-grid" id="wornGrid">
+    <div class="worn-card">
+<img src="images/banners/channelclassic.jpg" alt="Chanel Classic" loading="lazy"/>
+      <div class="worn-card-overlay"></div>
+      <div class="worn-card-label">
+        <div class="worn-brand">Chanel</div>
+        <div class="worn-name">Classic Flap</div>
+      </div>
+    </div>
+    <div class="worn-card">
+<img src="images/banners/lvbeverlybag.webp" alt="Louis Vuitton Beverly Bag" loading="lazy"/>
+      <div class="worn-card-overlay"></div>
+      <div class="worn-card-label">
+        <div class="worn-brand">Louis Vuitton</div>
+        <div class="worn-name">Beverly Bag</div>
+      </div>
+    </div>
+    <div class="worn-card">
+<img src="images/banners/bvlgariseprenti.avif" alt="Bvlgari Serpenti" loading="lazy"/>
+      <div class="worn-card-overlay"></div>
+      <div class="worn-card-label">
+        <div class="worn-brand">Bvlgari</div>
+        <div class="worn-name">Serpentine Forever Shoulder Bag</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EDITORIAL -->
+<div class="editorial">
+  <svg class="editorial-icon" viewBox="0 0 40 70" fill="none">
+    <ellipse cx="20" cy="12" rx="8" ry="9" fill="rgba(255,255,255,0.3)"/>
+    <rect x="10" y="22" width="20" height="35" rx="4" fill="rgba(255,255,255,0.2)"/>
+    <rect x="6" y="45" width="10" height="22" rx="3" fill="rgba(255,255,255,0.2)"/>
+    <rect x="24" y="45" width="10" height="22" rx="3" fill="rgba(255,255,255,0.2)"/>
+  </svg>
+  <div>
+    <span class="editorial-eyebrow">Curated With Intention</span>
+    <p class="editorial-quote">"Each piece is thoughtfully selected — beauty, condition, and provenance considered in every detail."</p>
+  </div>
+</div>
+
+<!-- TRUST: AUTHENTICITY + TPA + CONSIGNMENT -->
+<section class="trust-section" id="authenticity">
+  <div class="section-head">
+    <h2 class="section-title">Why Trust UrbanCloset</h2>
+    <span class="section-sub">Authenticity · Transparency · Care</span>
+  </div>
+
+  <!-- 4 icon cards -->
+  <div class="trust-cards">
+    <div class="trust-card">
+      <div class="trust-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+      <div class="trust-card-title">Expert Curation</div>
+      <p class="trust-card-text">Every bag hand-inspected for hardware, stitching, and provenance before listing.</p>
+    </div>
+    <div class="trust-card">
+      <div class="trust-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg></div>
+      <div class="trust-card-title">Sold as Authentic</div>
+      <p class="trust-card-text">All pieces listed as authentic preloved luxury unless explicitly stated otherwise.</p>
+    </div>
+    <div class="trust-card">
+      <div class="trust-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+      <div class="trust-card-title">Condition Reports</div>
+      <p class="trust-card-text">Detailed ratings, written notes, and photos for every item — no surprises.</p>
+    </div>
+    <div class="trust-card">
+      <div class="trust-card-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="trust-card-title">3rd-Party Option</div>
+      <p class="trust-card-text">Independent authentication available on request for full peace of mind.</p>
+    </div>
+  </div>
+
+  <!-- Accordions -->
+  <div class="trust-accordions">
+
+    <!-- TPA Accordion -->
+    <div class="accord" id="accordTPA">
+      <div class="accord-head" onclick="toggleAccord('accordTPA')">
+        <div class="accord-head-left">
+          <div>
+            <div class="accord-label">Optional Service</div>
+            <div class="accord-title">Third-Party Authentication</div>
+          </div>
+          <span class="accord-tag">$20–30 USD</span>
+        </div>
+        <span class="accord-arrow">⌄</span>
+      </div>
+      <div class="accord-body">
+        <div class="accord-inner">
+          <div class="accord-row"><div class="accord-num">01</div><div class="accord-row-text"><strong>Request anytime.</strong> Before or after purchase — message us on WhatsApp and we arrange it for you.</div></div>
+          <div class="accord-row"><div class="accord-num">02</div><div class="accord-row-text"><strong>Fee: $20–30 USD</strong> (≈ KD 6–9), paid to the authentication service. Non-refundable.</div></div>
+          <div class="accord-row"><div class="accord-num">03</div><div class="accord-row-text"><strong>Turnaround: 2–5 business days.</strong> Heritage houses (Hermès, Chanel) may take slightly longer.</div></div>
+          <div class="accord-row"><div class="accord-num">04</div><div class="accord-row-text"><strong>Digital certificate issued</strong> on success. Transfers with the bag and adds resale value.</div></div>
+          <div class="accord-row"><div class="accord-num">05</div><div class="accord-row-text"><strong>Available on all items,</strong> including during checkout — just mention it in your order message.</div></div>
+          <a class="accord-cta" href="https://wa.me/96590910123?text=Hi%2C%20I'd%20like%20to%20enquire%20about%20third-party%20authentication." target="_blank">Enquire on WhatsApp</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Consignment Accordion -->
+    <div class="accord" id="accordConsign">
+      <div class="accord-head" onclick="toggleAccord('accordConsign')">
+        <div class="accord-head-left">
+          <div>
+            <div class="accord-label">Earn From Your Wardrobe</div>
+            <div class="accord-title">Consign Your Pieces With Us</div>
+          </div>
+          <span class="accord-tag">10% Commission</span>
+        </div>
+        <span class="accord-arrow">⌄</span>
+      </div>
+      <div class="accord-body">
+        <div class="accord-inner">
+          <div class="accord-row"><div class="accord-num">01</div><div class="accord-row-text"><strong>Send us photos.</strong> WhatsApp clear shots of your bag — front, back, hardware, interior, and accessories.</div></div>
+          <div class="accord-row"><div class="accord-num">02</div><div class="accord-row-text"><strong>We assess & price.</strong> Our team proposes a fair listing price. You approve before anything goes live.</div></div>
+          <div class="accord-row"><div class="accord-num">03</div><div class="accord-row-text"><strong>We list & sell.</strong> We handle photography, listing, buyer enquiries, and negotiations.</div></div>
+          <div class="accord-row"><div class="accord-num">04</div><div class="accord-row-text"><strong>You get paid.</strong> 90% of the final sale price transferred to you directly — fast and hassle-free.</div></div>
+          <a class="accord-cta" href="https://wa.me/96590910123?text=Hi%2C%20I'd%20like%20to%20consign%20a%20bag%20with%20UrbanCloset." target="_blank">Start Consigning</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- HOW TO ORDER -->
+<section class="hto-section" id="how-to-order">
+  <div class="section-head">
+    <h2 class="section-title">How to Order</h2>
+    <span class="section-sub">Secure checkout · Multiple payment options</span>
+  </div>
+  <div class="hto-pay-row">
+    <span class="hto-pay-badge">KNET</span>
+    <span class="hto-pay-badge">Credit Card</span>
+    <span class="hto-pay-badge">Apple Pay</span>
+    <span class="hto-pay-badge">Deema Installments</span>
+    <span class="hto-pay-badge">Powered by MyFatoorah</span>
+  </div>
+  <div class="hto-grid">
+    <div class="hto-card">
+      <div class="hto-card-num">01</div>
+      <div class="hto-card-title">Browse & Select</div>
+      <p class="hto-card-text">Explore New Arrivals or browse by Collection. View full details, condition report, and pricing on each bag.</p>
+    </div>
+    <div class="hto-card">
+      <div class="hto-card-num">02</div>
+      <div class="hto-card-title">Add to Cart & Checkout</div>
+      <p class="hto-card-text">Add your item and proceed to checkout. You'll be taken to a secure payment page powered by MyFatoorah.</p>
+    </div>
+    <div class="hto-card">
+      <div class="hto-card-num">03</div>
+      <div class="hto-card-title">Pay Your Way</div>
+      <p class="hto-card-text">Choose KNET, credit card, or Apple Pay. Prefer installments? Select Deema at checkout — available on eligible orders.</p>
+    </div>
+    <div class="hto-card">
+      <div class="hto-card-num">04</div>
+      <div class="hto-card-title">Delivered to Your Door</div>
+      <p class="hto-card-text">Kuwait: 1–2 business days. Gulf region (UAE, Bahrain, Qatar, KSA): 3–5 days. International shipping on request.</p>
+    </div>
+  </div>
+  <a class="hto-cta" href="shop.html">Shop Now →</a>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">UrbanCloset</div>
+      <p class="footer-tagline">Authentic preloved designer bags, curated for the bold &amp; intentional. Kuwait &amp; Gulf Region.</p>
+      <div class="footer-contact">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;opacity:.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Kuwait, Salmiya, Salem Al Mubarak Street</div>
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;margin-top:1px;opacity:.6"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg><a href="https://wa.me/96590910123" target="_blank" style="color:inherit;text-decoration:none;">+965 9091 0123</a></div>
+        <div style="display:flex;align-items:flex-start;gap:8px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;opacity:.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg><a href="mailto:admin@urbancloset.kw" style="color:inherit;text-decoration:none;">admin@urbancloset.kw</a></div>
+      </div>
+      <div class="footer-social">
+        <a href="https://wa.me/96590910123" target="_blank" title="WhatsApp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2zm.001 18c-1.66 0-3.21-.507-4.487-1.375l-.322-.19-3.343.877.893-3.258-.209-.336A7.959 7.959 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>
+        </a>
+        <a href="https://instagram.com/urbancloset" target="_blank" title="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+        <a href="mailto:admin@urbancloset.kw" title="Email">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        </a>
+      </div>
+      <div class="footer-qr">
+        <div class="footer-qr-label">Scan to WhatsApp us</div>
+        <!-- QR code for wa.me/96590910123 -->
+        <svg width="80" height="80" viewBox="0 0 29 29" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+          <rect width="29" height="29" fill="rgba(184,147,106,0.08)" rx="3"/>
+          <!-- Finder top-left -->
+          <rect x="2" y="2" width="7" height="7" fill="none" stroke="rgba(184,147,106,0.7)" stroke-width="1"/>
+          <rect x="3.5" y="3.5" width="4" height="4" fill="rgba(184,147,106,0.7)"/>
+          <!-- Finder top-right -->
+          <rect x="20" y="2" width="7" height="7" fill="none" stroke="rgba(184,147,106,0.7)" stroke-width="1"/>
+          <rect x="21.5" y="3.5" width="4" height="4" fill="rgba(184,147,106,0.7)"/>
+          <!-- Finder bottom-left -->
+          <rect x="2" y="20" width="7" height="7" fill="none" stroke="rgba(184,147,106,0.7)" stroke-width="1"/>
+          <rect x="3.5" y="21.5" width="4" height="4" fill="rgba(184,147,106,0.7)"/>
+          <!-- Data modules (simplified pattern for wa.me/96590910123) -->
+          <rect x="10" y="2" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="2" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="2" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="4" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="14" y="4" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="4" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="6" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="13" y="6" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="8" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="15" y="8" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="6" y="10" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="10" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="10" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="21" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="12" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="5" y="12" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="12" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="14" y="12" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="12" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="21" y="12" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="24" y="12" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="14" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="7" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="11" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="13" y="14" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="14" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="24" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="26" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="16" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="4" y="16" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="8" y="16" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="16" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="15" y="16" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="19" y="16" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="22" y="16" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="18" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="6" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="18" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="23" y="18" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="20" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="14" y="20" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="20" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="20" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="23" y="20" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="20" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="22" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="13" y="22" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="22" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="22" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="22" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="24" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="15" y="24" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="18" y="24" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="22" y="24" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="24" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="26" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="26" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="26" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="21" y="26" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="26" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(184,147,106,0.3);margin-top:4px;">wa.me/96590910123</div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a href="#">New Arrivals</a>
+      <a href="shop.html">Shop All</a>
+      <a href="shop.html">Series 1</a>
+      <a href="shop.html">Series 2</a>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <a href="#">How to Order</a>
+      <a href="#">Authenticity</a>
+      <a href="#">Consignment</a>
+      <a href="#">WhatsApp Us</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="tel:+96590910123">+965 9091 0123</a>
+      <a href="mailto:admin@urbancloset.kw">admin@urbancloset.kw</a>
+      <a href="https://instagram.com/urbancloset" target="_blank" style="display:flex;align-items:center;gap:6px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>@urbancloset</a>
+      <a href="https://wa.me/96590910123" target="_blank" style="display:flex;align-items:center;gap:6px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>WhatsApp Us</a>
+      <a href="#">Kuwait Delivery</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 UrbanCloset. All rights reserved. Independently curated luxury preloved bags.</div>
+</footer>
+
+<!-- ── SCRIPTS ──────────────────────────────────────────── -->
+<script>
+  function toggleCurrency() {
+  Currency.set(Currency.get() === 'KWD' ? 'USD' : 'KWD');
+}
+document.addEventListener('currencyChanged', function() {
+  var c = Currency.get();
+  document.getElementById('currencyToggle').textContent = c + ' ▾';
+  // re-render — your renderProducts() already reads prices, just reload them
+  loadProducts();
+});
+// on load, apply saved preference
+document.getElementById('currencyToggle').textContent = Currency.get() + ' ▾';
+
+/* ── DRAWER ─── */
+function openDrawer() {
+  document.getElementById('sideDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('sideDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── SERIES CAROUSEL (dynamic — controlled by admin Series Management) ─── */
+var seriesPos = 0;
+var seriesCardW = 174;
+var seriesVisible = 5;
+var seriesTotal = 0; // set after API fetch
+
+function scrollSeries(dir) {
+  var max = Math.max(0, seriesTotal - seriesVisible);
+  seriesPos = Math.max(0, Math.min(seriesPos + dir, max));
+  document.getElementById('seriesTrack').style.transform = 'translateX(-' + (seriesPos * seriesCardW) + 'px)';
+  document.getElementById('seriesPrev').disabled = seriesPos === 0;
+  document.getElementById('seriesNext').disabled = seriesPos >= max;
+}
+
+// Series descriptions for known series (fallback text)
+var seriesDescriptions = {
+  'Series 1':  'Our debut curated collection.',
+  'Series 2':  'The second wave of finds.',
+  'Series 3':  'Something special incoming.',
+  'Series 4':  'The next chapter awaits.',
+  'Series 5':  'More rare pieces on the way.',
+  'Series 6':  'Curated with intention.',
+  'Series 7':  'Timeless pieces incoming.',
+  'Series 8':  'Bold, intentional, beautiful.',
+  'Series 9':  'Coming to the Gulf region.',
+  'Series 10': 'The grand finale collection.'
+};
+
+async function loadSeriesCarousel() {
+  try {
+    var res = await fetch(API_URL + '/series');
+    if (!res.ok) throw new Error('API error');
+    var json = await res.json();
+    var list = (json && Array.isArray(json.data)) ? json.data
+             : (Array.isArray(json)) ? json
+             : [];
+
+    var track = document.getElementById('seriesTrack');
+    if (!track) return;
+
+    if (!list.length) {
+      track.innerHTML = '<div style="padding:20px;color:var(--muted);font-size:13px;">No collections available yet.</div>';
+      seriesTotal = 0;
+      scrollSeries(0);
+      return;
+    }
+
+    seriesTotal = list.length;
+
+    track.innerHTML = list.map(function(s, i) {
+      var num = String(i + 1).padStart(2, '0');
+      var desc = seriesDescriptions[s.name] || 'A curated collection of finds.';
+      var encodedName = encodeURIComponent(s.name);
+      var isAvail = !s.status || s.status === 'available';
+      var hasImage = !!s.image_url;
+      var cardClass  = (isAvail ? 'series-card available' : 'series-card soon') + (hasImage ? ' has-image' : '');
+      var dotClass   = isAvail ? 'avail' : 'soon';
+      var statusText = isAvail ? 'Available' : 'Coming Soon';
+      var linkText   = isAvail ? 'View Collection →' : 'Coming Soon';
+      var href       = isAvail ? 'shop.html?series=' + encodedName : '#';
+      var bgDiv      = hasImage
+        ? '<div class="series-card-bg" style="background-image:url(\'' + s.image_url.replace(/'/g, '%27') + '\')"></div>'
+        : '';
+      return '<a class="' + cardClass + '" href="' + href + '"' + (isAvail ? '' : ' onclick="return false"') + '>' +
+        bgDiv +
+        '<div class="series-card-content">' +
+          '<div class="series-num">' + num + '</div>' +
+          '<div class="series-name">' + s.name + '</div>' +
+          '<div class="series-status ' + dotClass + '"><span class="status-dot ' + dotClass + '"></span>' + statusText + '</div>' +
+          '<p class="series-desc">' + desc + '</p>' +
+          '<span class="series-link ' + dotClass + '">' + linkText + '</span>' +
+        '</div>' +
+      '</a>';
+    }).join('');
+
+    scrollSeries(0);
+
+    // Also update the drawer series links dynamically
+    var drawerSeriesContainer = document.getElementById('drawerSeriesLinks');
+    if (drawerSeriesContainer) {
+      var svgIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>';
+      drawerSeriesContainer.innerHTML = list.map(function(s) {
+        return '<a href="shop.html?series=' + encodeURIComponent(s.name) + '">' + svgIcon + s.name + '</a>';
+      }).join('');
+    }
+
+  } catch(e) {
+    console.warn('loadSeriesCarousel failed:', e.message);
+    // Leave existing static content or show nothing — don't crash
+    scrollSeries(0);
+  }
+}
+
+loadSeriesCarousel();
+
+/* ── CART BADGE ─── */
+function updateCartBadge() { Cart.updateBadge(); }
+Cart.updateBadge();
+
+function goCart() { window.location.href = 'checkout.html'; }
+
+/* ── BAG SVG PLACEHOLDER ─── */
+function bagSVG(color) {
+  return '<svg viewBox="0 0 60 55" fill="none">' +
+    '<rect x="5" y="18" width="50" height="34" rx="3" fill="' + color + '"/>' +
+    '<path d="M18 18 C18 8 42 8 42 18" stroke="' + color + '" stroke-width="3" fill="none"/>' +
+    '<rect x="22" y="25" width="16" height="3" rx="1" fill="#C4956A"/>' +
+    '</svg>';
+}
+
+/* ── STARS HELPER ─── */
+function stars(rating) {
+  var filled = Math.round(rating || 5);
+  var out = '';
+  for (var i = 1; i <= 5; i++) {
+    if (i <= filled) {
+      out += '<svg width="10" height="10" viewBox="0 0 24 24" fill="#8B5E4A" style="display:inline-block;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+    } else {
+      out += '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#8B5E4A" stroke-width="1.5" style="display:inline-block;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+    }
+  }
+  return out;
+}
+
+/* ── ADD TO CART ─── */
+/* ── ADD TO CART ── */
+async function addToCart(product) {
+  await Cart.add(product);
+}
+
+/* ── BUY NOW ── */
+function buyNow(product) {
+  sessionStorage.setItem('uc_buynow', JSON.stringify(Object.assign({}, product, { qty: 1 })));
+  window.location.href = 'checkout.html?buynow=1';
+}
+
+/* ── RENDER PRODUCTS ─── */
+function renderProducts(products) {
+  var grid = document.getElementById('productGrid');
+  if (!Array.isArray(products) || products.length === 0) {
+    grid.innerHTML = '<div class="grid-loading">No products available.</div>';
+    return;
+  }
+  products = products.slice().sort(function(a, b) { return b.id - a.id; }).slice(0, 5);
+  var bgColors = ['#b8967a','#c4a882','#a88868','#d4b896','#c8a070','#b09060'];
+  var darkColors = ['#2c1810','#4a3020','#1a1a1a','#8B6040','#3a2818','#5a3a28'];
+  grid.innerHTML = products.map(function(p, i) {
+    var bg = bgColors[i % bgColors.length];
+    var dk = darkColors[i % darkColors.length];
+    var imgHtml = p.image_url ? '<img src="' + p.image_url + '" alt="' + (p.name || '') + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'">' : '<div class="product-img-placeholder" style="background:' + bg + '">' + bagSVG(dk) + '</div>';
+    var conditionLabel = p.condition || 'Excellent';
+    var priceKWD = p.price ? Currency.format(p.price) : '';
+    var productJson = JSON.stringify(p).replace(/"/g, '&quot;');
+    return '<div class="product-card" onclick="window.location.href=\'product.html?id=' + p.id + '\'">' +
+      '<div class="product-img-wrap">' +
+        imgHtml +
+        '<div class="product-condition-badge">' + conditionLabel + '</div>' +
+      '</div>' +
+      '<div class="product-info">' +
+        '<div class="product-brand">' + (p.brand || '') + '</div>' +
+        '<div class="product-name">' + (p.name || '') + '</div>' +
+        '<div class="product-stars">' + stars(p.rating) + '</div>' +
+        '<div class="product-footer">' +
+          '<div class="product-price">' + priceKWD + '</div>' +
+          '<div class="product-code">#' + String(p.id).padStart(3, '0') + '</div>' +
+        '</div>' +
+        '<div class="product-actions">' +
+          '<button class="product-btn product-btn-cart" onclick="event.stopPropagation(); addToCart(' + productJson + ')">Add to Cart</button>' +
+          '<button class="product-btn product-btn-buy" onclick="event.stopPropagation(); buyNow(' + productJson + ')">Buy Now</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+
+
+function normalizeProducts(products) {
+  if (!Array.isArray(products)) return [];
+  return products.map(function(p) {
+    if (!p || typeof p !== 'object') return null;
+    if (!p.image_url) {
+      p.image_url = Array.isArray(p.images) ? (p.images[0] || null) : (p.images || null);
+    }
+    return p;
+  }).filter(Boolean);
+}
+
+async function loadProducts() {
+  try {
+    var res = await fetch(API_URL + '/products');
+    if (!res.ok) throw new Error('Server error');
+    var json = await res.json();
+    var list = (json && json.data) ? json.data : json;
+    var products = normalizeProducts(list);
+    var newArrivals = products.filter(function(p){ return p.is_new_arrival; });
+    renderProducts(newArrivals.length ? newArrivals : products);
+  } catch (err) {
+    // While backend isn't set up yet, show demo products
+    renderProducts([
+      { id: 1, brand: 'Chanel',        name: 'Classic Flap',  price: 380, condition: 'Excellent',  rating: 5 },
+      { id: 2, brand: 'Louis Vuitton', name: 'Neverfull MM',  price: 220, condition: 'Very Good',   rating: 4 },
+      { id: 3, brand: 'Balenciaga',    name: 'City Bag',      price: 290, condition: 'Excellent',   rating: 5 },
+      { id: 4, brand: 'Christian Dior',name: 'Lady Dior',     price: 450, condition: 'Very Good',   rating: 4 },
+    ]);
+  }
+}
+
+loadProducts();
+
+function toggleAccord(id) {
+  var el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+/* ── ACCOUNT PANEL ─── */
+function toggleAccountPanel() {
+  var panel = document.getElementById('accountPanel');
+  var isOpen = panel.style.display === 'block';
+  if (isOpen) {
+    panel.style.display = 'none';
+  } else {
+    loadAccountPanel();
+    panel.style.display = 'block';
+  }
+}
+
+function loadAccountPanel() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('uc_user')); } catch(e) {}
+
+  var guest  = document.getElementById('panelGuest');
+  var logged = document.getElementById('panelUser');
+
+  if (!user) {
+    guest.style.display  = 'block';
+    logged.style.display = 'none';
+    return;
+  }
+
+  guest.style.display  = 'none';
+  logged.style.display = 'block';
+
+  // Avatar: initials
+  var initials = (user.name || 'U').split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase();
+  var avatarEl = document.getElementById('panelAvatar');
+  if (user.avatar_url) {
+    avatarEl.textContent = (user.name || 'U').charAt(0).toUpperCase();
+  } else {
+    avatarEl.textContent = initials;
+  }
+
+  document.getElementById('panelName').textContent  = user.name  || '';
+  document.getElementById('panelEmail').textContent = user.email || '';
+  document.getElementById('viewName').textContent   = user.name  || '';
+  document.getElementById('viewEmail').textContent  = user.email || '';
+}
+
+function openEditMode() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('uc_user')); } catch(e) {}
+  if (user) {
+    document.getElementById('editName').value  = user.name  || '';
+    document.getElementById('editEmail').value = user.email || '';
+    document.getElementById('editPassword').value = '';
+  }
+  document.getElementById('editMsg').style.display = 'none';
+  document.getElementById('panelView').style.display = 'none';
+  document.getElementById('panelEdit').style.display = 'block';
+}
+
+function closeEditMode() {
+  document.getElementById('panelEdit').style.display = 'none';
+  document.getElementById('panelView').style.display = 'block';
+}
+
+async function saveProfile() {
+  var user  = null;
+  try { user = JSON.parse(localStorage.getItem('uc_user')); } catch(e) {}
+  if (!user) return;
+
+  var name     = document.getElementById('editName').value.trim();
+  var email    = document.getElementById('editEmail').value.trim();
+  var password = document.getElementById('editPassword').value;
+  var msgEl    = document.getElementById('editMsg');
+
+  if (!name || !email) {
+    msgEl.textContent = 'Name and email are required.';
+    msgEl.style.cssText = 'display:block;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.25);color:#c0392b;font-size:11px;text-align:center;padding:7px;border-radius:3px;margin-bottom:10px;';
+    return;
+  }
+
+  var body = { name: name, email: email };
+  if (password) body.password = password;
+
+  try {
+    var token = localStorage.getItem('uc_token');
+    var res = await fetch(API_URL + '/users/' + user.id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Update failed.');
+
+    // Update localStorage
+    var updated = Object.assign({}, user, { name: name, email: email });
+    localStorage.setItem('uc_user', JSON.stringify(updated));
+
+    msgEl.textContent = 'Profile updated!';
+    msgEl.style.cssText = 'display:block;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.25);color:#1e8449;font-size:11px;text-align:center;padding:7px;border-radius:3px;margin-bottom:10px;';
+
+    setTimeout(function() {
+      closeEditMode();
+      loadAccountPanel();
+    }, 1200);
+
+  } catch(err) {
+    msgEl.textContent = err.message;
+    msgEl.style.cssText = 'display:block;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.25);color:#c0392b;font-size:11px;text-align:center;padding:7px;border-radius:3px;margin-bottom:10px;';
+  }
+}
+
+function accountLogout() {
+  Cart.clearOnLogout();
+  localStorage.removeItem('uc_token');
+  localStorage.removeItem('uc_user');
+  document.getElementById('accountPanel').style.display = 'none';
+  loadAccountPanel();
+}
+
+// Close panel when clicking outside
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('accountPanel');
+  var btn   = document.getElementById('accountBtn');
+  if (panel && panel.style.display === 'block') {
+    if (!panel.contains(e.target) && !btn.contains(e.target)) {
+      panel.style.display = 'none';
+    }
+  }
+});
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Create Account — UrbanCloset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="config.js"></script>
+  <script src="cart.js"></script>
+  <script src="currency.js"></script>
+  
+  <style>
+    :root {
+      --dark:  #150d05;
+      --dark2: #241a0f;
+      --gold:  #B8936A;
+      --tan:   #8B5E4A;
+      --sand:  #C4B09A;
+      --cream: #F0E8DE;
+      --white: #ffffff;
+      --muted: #7a6a5a;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans:  'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--cream);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 15% 40%, rgba(184,147,106,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 70%, rgba(139,94,74,0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    /* top strip like the store */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 7px 16px;
+      z-index: 10;
+    }
+
+    .register-wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 440px;
+      margin: 80px 24px 40px;
+    }
+
+    /* logo area */
+    .logo-area {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--dark2);
+      letter-spacing: 4px;
+    }
+    .logo-sub {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid rgba(184,147,106,0.2);
+      border-radius: 6px;
+      padding: 36px 36px 32px;
+      box-shadow: 0 4px 24px rgba(36,26,15,0.07);
+    }
+
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--dark2);
+      margin-bottom: 4px;
+    }
+    .card-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .form-group {
+      margin-bottom: 14px;
+    }
+    .form-label {
+      display: block;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--cream);
+      border: 1.5px solid rgba(184,147,106,0.25);
+      border-radius: 3px;
+      padding: 11px 13px;
+      font-size: 13.5px;
+      font-family: var(--font-sans);
+      color: var(--dark2);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .form-input:focus {
+      border-color: var(--gold);
+      background: #fff;
+    }
+    .form-input::placeholder { color: rgba(122,106,90,0.4); }
+    .form-input.error { border-color: #c0392b; }
+
+    .field-error {
+      font-size: 11px;
+      color: #c0392b;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .password-wrap { position: relative; }
+    .password-wrap .form-input { padding-right: 40px; }
+    .toggle-pw {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 15px;
+      user-select: none;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    .toggle-pw:hover { opacity: 1; }
+
+    /* password strength bar */
+    .strength-bar {
+      height: 3px;
+      background: rgba(184,147,106,0.15);
+      border-radius: 2px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    .strength-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 2px;
+      transition: width 0.3s, background 0.3s;
+    }
+    .strength-label {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(184,147,106,0.15);
+      margin: 18px 0;
+    }
+
+    .btn-register {
+      width: 100%;
+      background: var(--tan);
+      color: #fff;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 14px;
+      border-radius: 3px;
+      border: none;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 4px;
+    }
+    .btn-register:hover { background: #7a5040; }
+    .btn-register:disabled { background: rgba(139,94,74,0.35); cursor: not-allowed; }
+
+    .alert {
+      border-radius: 3px;
+      padding: 10px 14px;
+      font-size: 12px;
+      margin-top: 14px;
+      display: none;
+      text-align: center;
+    }
+    .alert-error {
+      background: rgba(192,57,43,0.08);
+      border: 1px solid rgba(192,57,43,0.25);
+      color: #c0392b;
+    }
+    .alert-success {
+      background: rgba(39,174,96,0.08);
+      border: 1px solid rgba(39,174,96,0.25);
+      color: #1e8449;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .login-link a {
+      color: var(--tan);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .login-link a:hover { text-decoration: underline; }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--tan); }
+
+    @media (max-width: 480px) {
+      .card { padding: 28px 20px 24px; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">Authentic Preloved Designer Bags — Kuwait Delivery</div>
+
+<div class="register-wrap">
+  <div class="logo-area">
+    <div class="logo">UrbanCloset</div>
+    <div class="logo-sub">Create Your Account</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Join UrbanCloset</div>
+    <div class="card-sub">Shop and track your orders with ease.</div>
+
+    <!-- Full Name -->
+    <div class="form-group">
+      <label class="form-label" for="fullName">Full Name</label>
+      <input class="form-input" type="text" id="fullName" placeholder="e.g. Sara Al-Rashidi" autocomplete="name"/>
+      <div class="field-error" id="errName">Please enter your full name.</div>
+    </div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label class="form-label" for="email">Email Address</label>
+      <input class="form-input" type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+      <div class="field-error" id="errEmail">Please enter a valid email.</div>
+    </div>
+
+    <!-- Passwords side by side on desktop -->
+    <div class="form-row">
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <div class="password-wrap">
+          <input class="form-input" type="password" id="password" placeholder="Min. 8 chars" autocomplete="new-password"/>
+          <span class="toggle-pw" onclick="togglePw('password', this)">👁</span>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+        <div class="strength-label" id="strengthLabel"></div>
+        <div class="field-error" id="errPassword">Password must be at least 8 characters.</div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="confirmPassword">Confirm Password</label>
+        <div class="password-wrap">
+          <input class="form-input" type="password" id="confirmPassword" placeholder="Repeat password" autocomplete="new-password"/>
+          <span class="toggle-pw" onclick="togglePw('confirmPassword', this)">👁</span>
+        </div>
+        <div class="field-error" id="errConfirm">Passwords do not match.</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="btn-register" id="btnRegister" onclick="register()">Create Account</button>
+
+    <div class="alert alert-error" id="alertError"></div>
+    <div class="alert alert-success" id="alertSuccess"></div>
+  </div>
+
+  <div class="login-link">Already have an account? <a href="login.html" id="loginLink">Sign in</a></div>
+  <a href="index.html" class="back-link">← Back to store</a>
+</div>
+
+<script>
+
+
+  /* ── toggle password visibility ── */
+  function togglePw(id, icon) {
+    var input = document.getElementById(id);
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.style.opacity = '1';
+    } else {
+      input.type = 'password';
+      icon.style.opacity = '0.6';
+    }
+  }
+
+  /* ── password strength ── */
+  document.getElementById('password').addEventListener('input', function () {
+    var val = this.value;
+    var score = 0;
+    if (val.length >= 8)  score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    var fill   = document.getElementById('strengthFill');
+    var label  = document.getElementById('strengthLabel');
+    var colors = ['#c0392b', '#e67e22', '#f1c40f', '#27ae60'];
+    var labels = ['Weak', 'Fair', 'Good', 'Strong'];
+    if (val.length === 0) {
+      fill.style.width = '0%';
+      label.textContent = '';
+    } else {
+      fill.style.width  = (score * 25) + '%';
+      fill.style.background = colors[score - 1] || colors[0];
+      label.textContent = labels[score - 1] || labels[0];
+      label.style.color = colors[score - 1] || colors[0];
+    }
+  });
+
+  /* ── Enter key support ── */
+  ['fullName','email','password','confirmPassword'].forEach(function(id) {
+    document.getElementById(id).addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') register();
+    });
+  });
+
+  /* ── helpers ── */
+  function showErr(id, show) {
+    document.getElementById(id).style.display = show ? 'block' : 'none';
+  }
+  function markInput(id, hasError) {
+    var el = document.getElementById(id);
+    if (hasError) el.classList.add('error');
+    else el.classList.remove('error');
+  }
+
+  /* ── validate ── */
+  function validate(name, email, password, confirm) {
+    var ok = true;
+
+    if (!name.trim() || name.trim().length < 2) {
+      showErr('errName', true); markInput('fullName', true); ok = false;
+    } else { showErr('errName', false); markInput('fullName', false); }
+
+    var emailRx = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRx.test(email)) {
+      showErr('errEmail', true); markInput('email', true); ok = false;
+    } else { showErr('errEmail', false); markInput('email', false); }
+
+    const passwordRx = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
+if (!passwordRx.test(password)) {
+  document.getElementById('errPassword').textContent = 'Must be 8+ chars with an uppercase letter and a number.';
+  showErr('errPassword', true); markInput('password', true); ok = false;
+} else { showErr('errPassword', false); markInput('password', false); }
+
+    if (password !== confirm) {
+      showErr('errConfirm', true); markInput('confirmPassword', true); ok = false;
+    } else { showErr('errConfirm', false); markInput('confirmPassword', false); }
+
+    return ok;
+  }
+
+  /* ── main register function ── */
+  async function register() {
+    var name     = document.getElementById('fullName').value.trim();
+    var email    = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value;
+    var confirm  = document.getElementById('confirmPassword').value;
+    var btn      = document.getElementById('btnRegister');
+    var errBox   = document.getElementById('alertError');
+    var okBox    = document.getElementById('alertSuccess');
+
+    errBox.style.display = 'none';
+    okBox.style.display  = 'none';
+
+    if (!validate(name, email, password, confirm)) return;
+
+    btn.textContent = 'Creating account…';
+    btn.disabled = true;
+
+    try {
+      var res = await fetch(API_URL + '/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      });
+
+      var data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || 'Registration failed. Please try again.');
+      }
+
+      /* save token if backend returns one immediately */
+      if (data.token) {
+       localStorage.setItem('uc_token', data.token);
+localStorage.setItem('uc_user', JSON.stringify(data.user || { name, email }));
+      }
+
+      okBox.textContent = 'Account created! Redirecting…';
+      okBox.style.display = 'block';
+
+      var redirect = new URLSearchParams(window.location.search).get('redirect');
+      setTimeout(function () {
+        window.location.href = redirect ? redirect : 'index.html';
+      }, 1500);
+
+    } catch (err) {
+      errBox.textContent = err.message;
+      errBox.style.display = 'block';
+      btn.textContent = 'Create Account';
+      btn.disabled = false;
+    }
+  }
+
+  // Carry the ?redirect= param over to the "Sign in" link, same as
+  // login.html does for its "Create one" link.
+  (function preserveRedirectOnLoginLink() {
+    var redirect = new URLSearchParams(window.location.search).get('redirect');
+    if (redirect) {
+      document.getElementById('loginLink').href =
+        'login.html?redirect=' + encodeURIComponent(redirect);
+    }
+  })();
+
+  /* if already logged in, skip */
+  if (localStorage.getItem('uc_token')) {
+    var skipRedirect = new URLSearchParams(window.location.search).get('redirect');
+    window.location.href = skipRedirect ? skipRedirect : 'index.html';
+  }
+</script>
+
+</body>
+</html>

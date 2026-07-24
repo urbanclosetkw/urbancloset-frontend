@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sign In — UrbanCloset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="config.js"></script>
+  <script src="cart.js"></script>
+<script src="currency.js"></script>
+  <style>
+    :root {
+      --dark:  #150d05;
+      --dark2: #241a0f;
+      --gold:  #B8936A;
+      --tan:   #8B5E4A;
+      --sand:  #C4B09A;
+      --cream: #F0E8DE;
+      --white: #ffffff;
+      --muted: #7a6a5a;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans:  'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--cream);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(184,147,106,0.12) 0%, transparent 55%),
+        radial-gradient(ellipse at 80% 20%, rgba(139,94,74,0.08) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 7px 16px;
+      z-index: 10;
+    }
+
+    .login-wrap {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 400px;
+      margin: 72px 24px 40px;
+    }
+
+    .logo-area {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--dark2);
+      letter-spacing: 4px;
+    }
+    .logo-sub {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid rgba(184,147,106,0.2);
+      border-radius: 6px;
+      padding: 36px 36px 32px;
+      box-shadow: 0 4px 24px rgba(36,26,15,0.07);
+    }
+
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--dark2);
+      margin-bottom: 4px;
+    }
+    .card-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+
+    .form-group { margin-bottom: 14px; }
+    .form-label {
+      display: block;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      background: var(--cream);
+      border: 1.5px solid rgba(184,147,106,0.25);
+      border-radius: 3px;
+      padding: 11px 13px;
+      font-size: 13.5px;
+      font-family: var(--font-sans);
+      color: var(--dark2);
+      outline: none;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .form-input:focus { border-color: var(--gold); background: #fff; }
+    .form-input::placeholder { color: rgba(122,106,90,0.4); }
+    .form-input.error { border-color: #c0392b; }
+
+    .password-wrap { position: relative; }
+    .password-wrap .form-input { padding-right: 40px; }
+    .toggle-pw {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 15px;
+      user-select: none;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+    }
+    .toggle-pw:hover { opacity: 1; }
+
+    .divider { height: 1px; background: rgba(184,147,106,0.15); margin: 18px 0; }
+
+    .btn-login {
+      width: 100%;
+      background: var(--tan);
+      color: #fff;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 14px;
+      border-radius: 3px;
+      border: none;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: background 0.2s;
+      margin-top: 4px;
+    }
+    .btn-login:hover { background: #7a5040; }
+    .btn-login:disabled { background: rgba(139,94,74,0.35); cursor: not-allowed; }
+
+    .alert {
+      border-radius: 3px;
+      padding: 10px 14px;
+      font-size: 12px;
+      margin-top: 14px;
+      display: none;
+      text-align: center;
+    }
+    .alert-error {
+      background: rgba(192,57,43,0.08);
+      border: 1px solid rgba(192,57,43,0.25);
+      color: #c0392b;
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .register-link a {
+      color: var(--tan);
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .register-link a:hover { text-decoration: underline; }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 16px;
+      font-size: 11px;
+      color: var(--muted);
+      text-decoration: none;
+      letter-spacing: 0.5px;
+      transition: color 0.2s;
+    }
+    .back-link:hover { color: var(--tan); }
+
+    @media (max-width: 480px) {
+      .card { padding: 28px 20px 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">Authentic Preloved Designer Bags — Kuwait Delivery</div>
+
+<div class="login-wrap">
+  <div class="logo-area">
+    <div class="logo">UrbanCloset</div>
+    <div class="logo-sub">Welcome Back</div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Sign In</div>
+    <div class="card-sub">Access your account and order history.</div>
+
+    <div class="form-group">
+      <label class="form-label" for="email">Email Address</label>
+      <input class="form-input" type="email" id="email" placeholder="you@example.com" autocomplete="email"/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="password">Password</label>
+      <div class="password-wrap">
+        <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+        <span class="toggle-pw" onclick="togglePw()">👁</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <button class="btn-login" id="btnLogin" onclick="login()">Sign In</button>
+
+    <div class="alert alert-error" id="alertError"></div>
+  </div>
+
+  <div class="register-link">Don't have an account? <a href="register.html" id="registerLink">Create one</a></div>
+  <a href="index.html" class="back-link">← Back to store</a>
+</div>
+
+<script>
+
+
+  function togglePw() {
+    var input = document.getElementById('password');
+    var icon  = document.querySelector('.toggle-pw');
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.style.opacity = '1';
+    } else {
+      input.type = 'password';
+      icon.style.opacity = '0.6';
+    }
+  }
+
+  ['email','password'].forEach(function(id) {
+    document.getElementById(id).addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') login();
+    });
+  });
+
+  // Carry the ?redirect= param over to the "Create one" link so a guest
+  // sent here from checkout (login.html?redirect=checkout.html) doesn't
+  // lose their destination if they choose to register instead.
+  (function preserveRedirectOnRegisterLink() {
+    var redirect = new URLSearchParams(window.location.search).get('redirect');
+    if (redirect) {
+      document.getElementById('registerLink').href =
+        'register.html?redirect=' + encodeURIComponent(redirect);
+    }
+  })();
+
+  async function login() {
+    localStorage.removeItem('uc_token');
+  localStorage.removeItem('uc_user');
+
+  var email    = document.getElementById('email').value.trim();
+    var password = document.getElementById('password').value;
+    var btn      = document.getElementById('btnLogin');
+    var errBox   = document.getElementById('alertError');
+
+    errBox.style.display = 'none';
+
+    if (!email || !password) {
+      errBox.textContent = 'Please enter your email and password.';
+      errBox.style.display = 'block';
+      return;
+    }
+
+    btn.textContent = 'Signing in…';
+    btn.disabled = true;
+
+    try {
+      var res = await fetch(API_URL + '/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      var data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Invalid email or password.');
+
+      localStorage.setItem('uc_token', data.token);
+localStorage.setItem('uc_user', JSON.stringify(data.user));
+await Cart.mergeOnLogin();
+
+      /* admins go to dashboard, customers go to store */
+      if (data.user && data.user.role === 'admin') {
+        window.location.href = '../admin/admin-products.html';
+      } else {
+        var params = new URLSearchParams(window.location.search);
+        var redirect = params.get('redirect');
+        window.location.href = redirect ? redirect : 'index.html';
+      }
+
+    } catch (err) {
+      errBox.textContent = err.message;
+      errBox.style.display = 'block';
+      btn.textContent = 'Sign In';
+      btn.disabled = false;
+    }
+  }
+
+(function() {
+    var token = localStorage.getItem('uc_token');
+    if (token) {
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('logout') || params.get('expired')) {
+        localStorage.removeItem('uc_token');
+        localStorage.removeItem('uc_user');
+        return;
+      }
+      var redirect = params.get('redirect');
+      window.location.href = redirect ? redirect : 'index.html';
+    }
+  })();
+</script>
+
+</body>
+</html>

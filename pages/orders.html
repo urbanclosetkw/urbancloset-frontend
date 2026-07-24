@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My Orders — UrbanCloset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="config.js"></script>
+  <script src="currency.js"></script>
+  <style>
+    :root {
+      --dark:  #150d05;
+      --dark2: #241a0f;
+      --gold:  #B8936A;
+      --tan:   #8B5E4A;
+      --sand:  #C4B09A;
+      --cream: #F0E8DE;
+      --white: #ffffff;
+      --muted: #7a6a5a;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans:  'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-sans); background: var(--sand); color: var(--dark2); min-height: 100vh; }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+
+    /* TOPBAR */
+    .topbar {
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 7px 16px;
+    }
+
+    /* NAVBAR */
+    .navbar {
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 28px;
+      border-bottom: 1px solid var(--tan);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--dark2);
+      letter-spacing: 3px;
+    }
+    .nav-back {
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--dark2);
+      opacity: 0.65;
+      transition: opacity 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .nav-back:hover { opacity: 1; }
+
+    /* PAGE */
+    .page-wrap {
+      max-width: 780px;
+      margin: 0 auto;
+      padding: 44px 20px 90px;
+    }
+
+    .page-header {
+      margin-bottom: 32px;
+    }
+    .page-eyebrow {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--tan);
+      margin-bottom: 6px;
+    }
+    .page-title {
+      font-family: var(--font-serif);
+      font-size: 36px;
+      font-weight: 600;
+      color: var(--dark2);
+      line-height: 1.1;
+    }
+    .page-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+    /* STATES */
+    .state-loading {
+      text-align: center;
+      padding: 80px 20px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .spinner {
+      width: 28px;
+      height: 28px;
+      border: 2px solid rgba(139,94,74,0.2);
+      border-top-color: var(--tan);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .state-empty {
+      text-align: center;
+      padding: 80px 20px;
+      background: var(--cream);
+      border-radius: 6px;
+      border: 1px solid rgba(184,147,106,0.2);
+    }
+    .empty-icon {
+      font-size: 38px;
+      margin-bottom: 16px;
+      opacity: 0.35;
+    }
+    .empty-title {
+      font-family: var(--font-serif);
+      font-size: 24px;
+      font-weight: 600;
+      color: var(--dark2);
+      margin-bottom: 6px;
+    }
+    .empty-sub {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 24px;
+    }
+    .btn-primary {
+      display: inline-block;
+      background: var(--tan);
+      color: #fff;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 12px 28px;
+      border-radius: 3px;
+      transition: opacity 0.2s;
+    }
+    .btn-primary:hover { opacity: 0.85; }
+
+    /* ORDER CARD */
+    .order-card {
+      background: var(--cream);
+      border: 1px solid rgba(184,147,106,0.25);
+      border-radius: 5px;
+      margin-bottom: 14px;
+      overflow: hidden;
+      transition: box-shadow 0.2s;
+    }
+    .order-card:hover {
+      box-shadow: 0 4px 18px rgba(36,26,15,0.08);
+    }
+
+    .order-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(184,147,106,0.15);
+      gap: 10px;
+      flex-wrap: wrap;
+      background: var(--white);
+    }
+    .order-meta { display: flex; flex-direction: column; gap: 3px; }
+    .order-num {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--dark2);
+      letter-spacing: 0.5px;
+    }
+    .order-date { font-size: 10px; color: var(--muted); }
+    .order-right { display: flex; align-items: center; gap: 12px; }
+    .order-total {
+      font-family: var(--font-serif);
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--dark2);
+    }
+
+    /* STATUS BADGE */
+    .badge {
+      display: inline-block;
+      font-size: 8px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 3px 9px;
+      border-radius: 20px;
+      font-weight: 500;
+    }
+    .badge-pending    { background: rgba(184,147,106,0.18); color: #8B6914; }
+    .badge-processing { background: rgba(52,152,219,0.13);  color: #1a6fa0; }
+    .badge-shipped    { background: rgba(155,89,182,0.13);  color: #7d3fa8; }
+    .badge-delivered  { background: rgba(39,174,96,0.13);   color: #1a7a44; }
+    .badge-cancelled  { background: rgba(192,57,43,0.1);    color: #a93226; }
+    .badge-confirmed  { background: rgba(52,152,219,0.13);  color: #1a6fa0; }
+    .badge-awaiting_payment { background: rgba(230,126,34,0.13); color: #b2570c; }
+    .badge-payment_failed   { background: rgba(192,57,43,0.1);   color: #a93226; }
+
+    /* ORDER BODY */
+    .order-body { padding: 14px 18px; }
+    .order-items-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 4px; }
+    .order-item { display: flex; align-items: center; gap: 12px; }
+    .item-img {
+      width: 50px;
+      height: 50px;
+      border-radius: 3px;
+      object-fit: cover;
+      background: var(--sand);
+      flex-shrink: 0;
+      border: 1px solid rgba(184,147,106,0.15);
+    }
+    .item-info { flex: 1; min-width: 0; }
+    .item-name  { font-size: 12px; color: var(--dark2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .item-qty   { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .item-price { font-size: 12px; font-weight: 500; color: var(--dark2); white-space: nowrap; }
+    .items-more { font-size: 10px; color: var(--muted); padding-top: 4px; }
+
+    /* ORDER FOOTER */
+    .order-footer {
+      border-top: 1px solid rgba(184,147,106,0.12);
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .order-payment { font-size: 10px; color: var(--muted); }
+    .btn-details {
+      background: none;
+      border: 1.5px solid rgba(139,94,74,0.3);
+      color: var(--tan);
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      padding: 7px 16px;
+      border-radius: 3px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: background 0.2s, color 0.2s;
+    }
+    .btn-details:hover { background: var(--tan); color: #fff; }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(21,13,5,0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal {
+      background: var(--white);
+      border-radius: 6px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 60px rgba(21,13,5,0.25);
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 22px 14px;
+      border-bottom: 1px solid rgba(184,147,106,0.15);
+      position: sticky;
+      top: 0;
+      background: var(--white);
+      z-index: 1;
+    }
+    .modal-title {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--dark2);
+    }
+    .modal-close {
+      font-size: 18px;
+      color: var(--muted);
+      cursor: pointer;
+      line-height: 1;
+      padding: 4px;
+      transition: color 0.2s;
+    }
+    .modal-close:hover { color: var(--dark2); }
+    .modal-body { padding: 18px 22px 24px; }
+
+    .detail-block { margin-bottom: 20px; }
+    .detail-label {
+      font-size: 8px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--dark2);
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(184,147,106,0.08);
+      gap: 12px;
+    }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-row .lbl { color: var(--muted); flex-shrink: 0; }
+    .detail-row .val { text-align: right; }
+
+    .modal-items { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+    .modal-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+      background: var(--cream);
+      border-radius: 4px;
+    }
+    .modal-item-img {
+      width: 46px;
+      height: 46px;
+      object-fit: cover;
+      border-radius: 3px;
+      background: var(--sand);
+      flex-shrink: 0;
+    }
+    .modal-item-info { flex: 1; min-width: 0; }
+    .modal-item-name { font-size: 12px; color: var(--dark2); }
+    .modal-item-sub  { font-size: 10px; color: var(--muted); margin-top: 2px; }
+    .modal-item-price { font-size: 12px; font-weight: 500; color: var(--dark2); white-space: nowrap; }
+
+    .modal-total {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-top: 12px;
+      border-top: 1.5px solid rgba(184,147,106,0.2);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .modal-total-amt {
+      font-family: var(--font-serif);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--dark2);
+    }
+
+    @media (max-width: 560px) {
+      .navbar { padding: 12px 16px; }
+      .page-wrap { padding: 28px 14px 60px; }
+      .order-head { flex-direction: column; align-items: flex-start; }
+      .order-right { justify-content: space-between; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="topbar">Authentic Preloved Designer Bags — Kuwait Delivery</div>
+
+<nav class="navbar">
+  <a href="index.html" class="nav-back">← Store</a>
+  <div class="nav-logo">UrbanCloset</div>
+  <div style="width:60px;"></div>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="page-header">
+    <div class="page-eyebrow">Account</div>
+    <div class="page-title">My Orders</div>
+    <div class="page-sub" id="pageSub">Loading…</div>
+  </div>
+
+  <!-- Loading -->
+  <div id="stateLoading" class="state-loading">
+    <div class="spinner"></div>
+    Fetching your order history…
+  </div>
+
+  <!-- Empty -->
+  <div id="stateEmpty" class="state-empty" style="display:none;">
+    <div class="empty-icon">🛍</div>
+    <div class="empty-title">No orders yet</div>
+    <div class="empty-sub">When you place an order, it'll appear here.</div>
+    <a href="index.html" class="btn-primary">Browse Bags</a>
+  </div>
+
+  <!-- Orders list -->
+  <div id="ordersList" style="display:none;"></div>
+
+</div>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Order Details</div>
+      <span class="modal-close" onclick="closeModal()">✕</span>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+</div>
+
+<script>
+  var allOrders = [];
+
+  var STATUS_LABELS = {
+    pending:           'Pending',
+    processing:        'Processing',
+    shipped:            'Shipped',
+    delivered:          'Delivered',
+    cancelled:          'Cancelled',
+    confirmed:          'Confirmed',
+    awaiting_payment:   'Awaiting Payment',
+    payment_failed:     'Payment Failed'
+  };
+
+  function badgeClass(status) {
+    return 'badge badge-' + (status || 'pending');
+  }
+
+  function formatDate(str) {
+    if (!str) return '—';
+    return new Date(str).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  function formatKWD(n) {
+    return 'KD ' + (parseFloat(n) || 0).toFixed(3);
+  }
+
+  function imgSrc(item) {
+    var src = item.image_url || (Array.isArray(item.images) ? item.images[0] : '') || '';
+    return src || 'https://placehold.co/50x50/F0E8DE/C4B09A?text=bag';
+  }
+
+  function renderOrders(orders) {
+    document.getElementById('stateLoading').style.display = 'none';
+
+    if (!orders.length) {
+      document.getElementById('stateEmpty').style.display = 'block';
+      document.getElementById('pageSub').textContent = 'No orders placed yet.';
+      return;
+    }
+
+    document.getElementById('pageSub').textContent =
+      orders.length + ' order' + (orders.length !== 1 ? 's' : '') + ' placed';
+    document.getElementById('ordersList').style.display = 'block';
+
+    var html = orders.map(function(order, idx) {
+      var items   = order.items || [];
+      var preview = items.slice(0, 3);
+      var extra   = items.length - preview.length;
+      var status  = order.status || 'pending';
+
+      var itemsHtml = preview.map(function(item) {
+        return '<div class="order-item">' +
+          '<img class="item-img" src="' + imgSrc(item) + '" alt="" onerror="this.src=\'https://placehold.co/50x50/F0E8DE/C4B09A?text=bag\'">' +
+          '<div class="item-info">' +
+            '<div class="item-name">' + (item.name || item.title || 'Product') + '</div>' +
+            '<div class="item-qty">Qty: ' + (item.qty || 1) + '</div>' +
+          '</div>' +
+          '<div class="item-price">' + formatKWD(item.price) + '</div>' +
+        '</div>';
+      }).join('');
+
+      if (extra > 0) {
+        itemsHtml += '<div class="items-more">+' + extra + ' more item' + (extra > 1 ? 's' : '') + '</div>';
+      }
+
+      return '<div class="order-card">' +
+        '<div class="order-head">' +
+          '<div class="order-meta">' +
+            '<div class="order-num">Order #' + String(order.id).slice(0, 8).toUpperCase() + '</div>' +
+            '<div class="order-date">' + formatDate(order.created_at) + '</div>' +
+          '</div>' +
+          '<div class="order-right">' +
+            '<span class="' + badgeClass(status) + '">' + (STATUS_LABELS[status] || status) + '</span>' +
+            '<div class="order-total">' + formatKWD(order.total) + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="order-body">' +
+          '<div class="order-items-list">' + itemsHtml + '</div>' +
+        '</div>' +
+        '<div class="order-footer">' +
+          '<div class="order-payment">Payment: ' + (order.payment_method === 'cash_on_delivery' ? 'Cash on Delivery' : order.payment_method === 'online_payment' ? 'Online / Deema' : (order.payment_method || '—')) + '</div>' +
+          '<button class="btn-details" onclick="openModal(' + idx + ')">View Details</button>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    document.getElementById('ordersList').innerHTML = html;
+  }
+
+  function openModal(idx) {
+    var order = allOrders[idx];
+    if (!order) return;
+
+    var items  = order.items  || [];
+    var info   = order.customer_info || {};
+    var status = order.status || 'pending';
+
+    document.getElementById('modalTitle').textContent =
+      'Order #' + String(order.id).slice(0, 8).toUpperCase();
+
+    var itemsHtml = items.map(function(item) {
+      var lineTotal = (parseFloat(item.price) || 0) * (item.qty || 1);
+      return '<div class="modal-item">' +
+        '<img class="modal-item-img" src="' + imgSrc(item) + '" alt="" onerror="this.src=\'https://placehold.co/46x46/F0E8DE/C4B09A?text=bag\'">' +
+        '<div class="modal-item-info">' +
+          '<div class="modal-item-name">' + (item.name || item.title || 'Product') + '</div>' +
+          '<div class="modal-item-sub">Qty: ' + (item.qty || 1) + '</div>' +
+        '</div>' +
+        '<div class="modal-item-price">' + formatKWD(lineTotal) + '</div>' +
+      '</div>';
+    }).join('');
+
+    var name    = order.customer_name    || info.name    || '—';
+    var phone   = order.customer_phone   || info.phone   || '—';
+    var address = order.customer_address || info.address || '—';
+
+    document.getElementById('modalBody').innerHTML =
+      '<div class="detail-block">' +
+        '<div class="detail-label">Order Info</div>' +
+        '<div class="detail-row"><span class="lbl">Date</span><span class="val">' + formatDate(order.created_at) + '</span></div>' +
+        '<div class="detail-row"><span class="lbl">Status</span><span class="val"><span class="' + badgeClass(status) + '">' + (STATUS_LABELS[status] || status) + '</span></span></div>' +
+        '<div class="detail-row"><span class="lbl">Payment</span><span class="val">' + (order.payment_method || '—') + '</span></div>' +
+      '</div>' +
+      '<div class="detail-block">' +
+        '<div class="detail-label">Delivery Details</div>' +
+        '<div class="detail-row"><span class="lbl">Name</span><span class="val">' + name + '</span></div>' +
+        '<div class="detail-row"><span class="lbl">Phone</span><span class="val">' + phone + '</span></div>' +
+        '<div class="detail-row"><span class="lbl">Address</span><span class="val">' + address + '</span></div>' +
+      '</div>' +
+      '<div class="detail-block">' +
+        '<div class="detail-label">Items</div>' +
+        '<div class="modal-items">' + itemsHtml + '</div>' +
+        '<div class="modal-total"><span>Total</span><span class="modal-total-amt">' + formatKWD(order.total) + '</span></div>' +
+      '</div>';
+
+    document.getElementById('modalOverlay').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+  });
+
+  async function loadOrders() {
+    var token = localStorage.getItem('uc_token');
+    if (!token) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    try {
+      var res = await fetch(API_URL + '/orders', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+
+      if (res.status === 401) {
+        localStorage.removeItem('uc_token');
+        localStorage.removeItem('uc_user');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      if (!res.ok) throw new Error('Failed to load orders');
+
+      var json = await res.json();
+      allOrders = (json && json.data) ? json.data : json;
+      renderOrders(allOrders);
+    } catch (e) {
+      document.getElementById('stateLoading').innerHTML =
+        '<div style="color:var(--tan);">Could not load orders. Please try again.</div>';
+    }
+  }
+
+  loadOrders();
+</script>
+
+</body>
+</html>

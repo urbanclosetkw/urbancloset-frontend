@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Order Confirmed — UrbanCloset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="config.js"></script>
+  <script src="cart.js"></script>
+  <script src="currency.js"></script>
+
+  <style>
+    /* ── VARIABLES ─────────────────────────────────────── */
+    :root {
+      --dark:    #150d05;
+      --dark2:   #241a0f;
+      --gold:    #B8936A;
+      --tan:     #8B5E4A;
+      --sand:    #C4B09A;
+      --cream:   #F0E8DE;
+      --white:   #ffffff;
+      --muted:   #7a6a5a;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans:  'DM Sans', sans-serif;
+    }
+
+    /* ── RESET ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--cream); font-family: var(--font-sans); color: var(--dark2); }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ── TOPBAR ─────────────────────────────────────────── */
+    .topbar {
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 7px 16px;
+    }
+
+    /* ── NAVBAR ─────────────────────────────────────────── */
+    .navbar {
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 28px;
+      border-bottom: 1px solid var(--tan);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .nav-ham {
+      color: var(--dark2);
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 3px;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+    }
+    .nav-ham:hover { background: rgba(44,35,24,0.12); }
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--dark2);
+      letter-spacing: 3px;
+    }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-icons { color: var(--dark2); display: flex; gap: 12px; align-items: center; }
+    .nav-icons span { display: inline-flex; align-items: center; cursor: pointer; }
+    .cart-count {
+      background: var(--tan);
+      color: #fff;
+      font-size: 9px;
+      width: 17px; height: 17px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      top: -6px; left: -8px;
+    }
+    .nav-cta {
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 9px;
+      padding: 6px 14px;
+      border-radius: 2px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ── SIDE DRAWER ────────────────────────────────────── */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 299; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+    .side-drawer {
+      position: fixed; top: 0; left: 0;
+      width: 260px; height: 100%;
+      background: var(--dark);
+      z-index: 300;
+      transform: translateX(-100%);
+      transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column;
+    }
+    .side-drawer.open { transform: translateX(0); }
+    .drawer-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid rgba(203,173,141,0.12);
+    }
+    .drawer-logo { font-family: var(--font-serif); font-size: 16px; color: var(--gold); letter-spacing: 2px; }
+    .drawer-close {
+      color: rgba(203,173,141,0.5);
+      cursor: pointer; transition: color 0.2s;
+      display: flex; align-items: center;
+    }
+    .drawer-close:hover { color: var(--gold); }
+    .drawer-nav { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .drawer-nav a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 18px;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(203,173,141,0.75);
+      border-left: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .drawer-nav a svg { flex-shrink: 0; opacity: 0.7; }
+    .drawer-nav a:hover svg, .drawer-nav a.active svg { opacity: 1; }
+    .drawer-nav a:hover, .drawer-nav a.active {
+      color: var(--gold);
+      border-left-color: var(--tan);
+      background: rgba(203,173,141,0.05);
+    }
+    .drawer-divider { height: 1px; background: rgba(203,173,141,0.1); margin: 6px 18px; }
+    .drawer-section-label {
+      padding: 8px 18px 3px;
+      font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase;
+      color: rgba(203,173,141,0.35);
+    }
+    .drawer-badge {
+      background: var(--tan); color: #fff;
+      font-size: 8px; padding: 1px 6px; border-radius: 10px; margin-left: auto;
+    }
+    .drawer-foot {
+      padding: 14px 18px;
+      border-top: 1px solid rgba(203,173,141,0.1);
+      font-size: 10px; color: rgba(203,173,141,0.45); line-height: 1.7;
+    }
+
+    /* ── CONFIRM HERO ───────────────────────────────────── */
+    .confirm-hero {
+      background: var(--dark2);
+      padding: 56px 32px 48px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .confirm-hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 0%, rgba(184,147,106,0.08) 0%, transparent 70%);
+    }
+    .confirm-icon {
+      width: 72px; height: 72px;
+      border-radius: 50%;
+      background: rgba(184,147,106,0.12);
+      border: 1.5px solid rgba(184,147,106,0.3);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      position: relative; z-index: 1;
+      animation: pop-in 0.5s cubic-bezier(.34,1.56,.64,1) both;
+      color: var(--gold);
+    }
+    @keyframes pop-in {
+      from { transform: scale(0.5); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .confirm-eyebrow {
+      font-size: 10px; letter-spacing: 4px; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 12px;
+      position: relative; z-index: 1;
+    }
+    .confirm-title {
+      font-family: var(--font-serif);
+      font-size: 52px; font-weight: 700;
+      color: var(--gold); line-height: 1.05; margin-bottom: 12px;
+      position: relative; z-index: 1;
+    }
+    .confirm-title em { font-style: italic; color: #fff; }
+    .confirm-sub {
+      font-size: 14px; color: rgba(184,147,106,0.7);
+      max-width: 440px; margin: 0 auto 24px; line-height: 1.7;
+      position: relative; z-index: 1;
+    }
+    .order-number-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(184,147,106,0.1);
+      border: 1px solid rgba(184,147,106,0.25);
+      border-radius: 40px; padding: 8px 20px;
+      font-size: 13px; color: var(--gold); letter-spacing: 2px;
+      position: relative; z-index: 1;
+    }
+    .order-number-badge span { color: rgba(184,147,106,0.55); font-size: 11px; }
+
+    /* ── MAIN WRAP ──────────────────────────────────────── */
+    .main-wrap {
+      max-width: 780px; margin: 0 auto;
+      padding: 40px 32px;
+      display: flex; flex-direction: column; gap: 20px;
+    }
+
+    /* ── CARD ───────────────────────────────────────────── */
+    .card { background: #fff; border-radius: 4px; overflow: hidden; }
+    .card-head {
+      padding: 18px 24px;
+      border-bottom: 1px solid rgba(164,131,116,0.12);
+      display: flex; align-items: center; gap: 10px;
+    }
+    .card-head-icon { display: flex; align-items: center; color: var(--tan); }
+    .card-head-title { font-family: var(--font-serif); font-size: 18px; color: var(--dark2); font-weight: 600; }
+    .card-body { padding: 20px 24px; }
+
+    /* ── ORDER ITEMS ────────────────────────────────────── */
+    .order-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid rgba(164,131,116,0.1);
+    }
+    .order-item:last-child { border-bottom: none; }
+    .order-item-img {
+      width: 64px; height: 64px; border-radius: 3px;
+      background: var(--sand); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; overflow: hidden;
+    }
+    .order-item-img img { width: 100%; height: 100%; object-fit: cover; }
+    .order-item-img svg { width: 34px; opacity: 0.45; }
+    .order-item-info { flex: 1; }
+    .order-item-brand { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 2px; }
+    .order-item-name { font-family: var(--font-serif); font-size: 16px; color: var(--dark2); font-weight: 600; }
+    .order-item-cond { font-size: 11px; color: var(--muted); }
+    .order-item-price { font-family: var(--font-serif); font-size: 18px; color: var(--tan); font-weight: 700; flex-shrink: 0; }
+
+    /* ── TOTALS ─────────────────────────────────────────── */
+    .totals-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); padding: 6px 0; }
+    .totals-divider { height: 1px; background: rgba(164,131,116,0.12); margin: 8px 0; }
+    .totals-final { display: flex; justify-content: space-between; align-items: baseline; padding: 8px 0 0; }
+    .totals-final-label { font-size: 13px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--dark2); }
+    .totals-final-amount { font-family: var(--font-serif); font-size: 28px; color: var(--tan); font-weight: 700; }
+
+    /* ── DELIVERY DETAILS ───────────────────────────────── */
+    .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 20px; }
+    .detail-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+    .detail-value { font-size: 13px; color: var(--dark2); font-weight: 500; }
+
+    /* ── WHAT HAPPENS NEXT ──────────────────────────────── */
+    .steps-list { display: flex; flex-direction: column; gap: 0; }
+    .next-step {
+      display: flex; gap: 16px; align-items: flex-start;
+      padding: 16px 0; border-bottom: 1px solid rgba(164,131,116,0.1);
+    }
+    .next-step:last-child { border-bottom: none; }
+    .next-step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(139,94,74,0.12);
+      border: 1.5px solid rgba(139,94,74,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; color: var(--tan); font-weight: 500;
+      flex-shrink: 0; margin-top: 2px;
+    }
+    .next-step-title { font-size: 14px; font-weight: 500; color: var(--dark2); margin-bottom: 3px; }
+    .next-step-desc  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+    /* ── CTA BUTTONS ────────────────────────────────────── */
+    .cta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .btn-dark {
+      flex: 1; min-width: 160px;
+      background: var(--dark2); color: var(--gold);
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      padding: 15px 20px; border-radius: 2px; text-align: center;
+      cursor: pointer; transition: background 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-dark:hover { background: var(--dark); }
+    .btn-wa {
+      flex: 1; min-width: 160px;
+      background: #25D366; color: #fff;
+      font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      padding: 15px 20px; border-radius: 2px; text-align: center;
+      cursor: pointer; transition: opacity 0.2s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-wa:hover { opacity: 0.9; }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    .footer { background: var(--dark2); padding: 40px 32px 24px; margin-top: 20px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+    .footer-logo { font-family: var(--font-serif); font-size: 20px; color: var(--gold); letter-spacing: 3px; margin-bottom: 8px; }
+    .footer-tagline { font-size: 11px; color: rgba(184,147,106,0.65); line-height: 1.7; }
+    .footer-contact { font-size: 11px; color: rgba(203,173,141,0.55); margin-top: 10px; line-height: 1.8; }
+    .footer-col h4 { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+    .footer-col a { display: block; font-size: 11px; color: rgba(184,147,106,0.6); margin-bottom: 8px; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--gold); }
+    .footer-bottom { border-top: 1px solid rgba(184,147,106,0.15); padding-top: 16px; font-size: 10px; color: rgba(184,147,106,0.35); text-align: center; }
+    .footer-social { display: flex; gap: 10px; margin-top: 12px; }
+    .footer-social a {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid rgba(184,147,106,0.3);
+      color: var(--gold); transition: all 0.2s;
+    }
+    .footer-social a:hover { background: rgba(184,147,106,0.15); border-color: var(--gold); }
+    .footer-qr { margin-top: 14px; }
+    .footer-qr-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(184,147,106,0.4); margin-bottom: 8px; }
+
+    /* ── MOBILE ─────────────────────────────────────────── */
+    @media (max-width: 640px) {
+      .navbar { padding: 10px 16px; }
+      .nav-logo { font-size: 18px; }
+      .nav-cta { display: none; }
+      .confirm-hero { padding: 40px 16px 36px; }
+      .confirm-title { font-size: 38px; }
+      .main-wrap { padding: 24px 16px; }
+      .card-body { padding: 16px; }
+      .card-head { padding: 14px 16px; }
+      .detail-grid { grid-template-columns: 1fr; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .footer { padding: 32px 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- SIDE DRAWER -->
+<aside class="side-drawer" id="sideDrawer">
+  <div class="drawer-head">
+    <div class="drawer-logo">UrbanCloset</div>
+    <div class="drawer-close" onclick="closeDrawer()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+  </div>
+  <nav class="drawer-nav">
+    <a href="index.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
+    <a href="index.html#new-arrivals"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>New Arrivals <span class="drawer-badge">4</span></a>
+    <a href="#"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>Shop All</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section-label">Collections</div>
+    <a href="shop.html?series=Series+1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 1</a>
+    <a href="shop.html?series=Series+2"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 2</a>
+    <a href="shop.html?series=Series+3"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 3</a>
+    <a href="shop.html?series=Series+4"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 4</a>
+    <a href="shop.html?series=Series+5"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 5</a>
+    <a href="shop.html?series=Series+6"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 6</a>
+    <a href="shop.html?series=Series+7"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 7</a>
+    <a href="shop.html?series=Series+8"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 8</a>
+    <a href="shop.html?series=Series+9"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 9</a>
+    <a href="shop.html?series=Series+10"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 10</a>
+    <div class="drawer-divider"></div>
+
+    <a href="checkout.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Cart <span class="drawer-badge" id="cartDrawerCount">0</span></a>
+    <a href="#"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account</a>
+    <div class="drawer-divider"></div>
+    <a href="index.html#how-to-order"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>How to Order</a>
+    <a href="index.html#authenticity"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Authenticity</a>
+    <a href="index.html#consignment"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Consignment</a>
+    <a href="https://wa.me/96590910123" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>Contact Us</a>
+  </nav>
+  <div class="drawer-foot">
+    <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Kuwait, Salmiya</div>
+    <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>+965 9091 0123</div>
+    <div style="display:flex;align-items:flex-start;gap:7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>admin@urbancloset.kw</div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<div class="topbar">Thank You for Your Order &nbsp;·&nbsp; UrbanCloset &nbsp;·&nbsp; Kuwait</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-ham" onclick="openDrawer()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </div>
+  <a href="index.html" class="nav-logo">UrbanCloset</a>
+  <div class="nav-actions">
+    <div class="nav-icons">
+      <span>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </span>
+      <span onclick="window.location.href='checkout.html'" style="cursor:pointer;position:relative;display:inline-flex;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-count" id="cartBadge">0</span>
+      </span>
+    </div>
+    <div class="nav-cta" onclick="window.open('https://wa.me/96590910123','_blank')">Get in Touch</div>
+  </div>
+</nav>
+
+<!-- CONFIRM HERO -->
+<div class="confirm-hero">
+  <div class="confirm-icon">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+  </div>
+  <div class="confirm-eyebrow">Order Placed Successfully</div>
+  <h1 class="confirm-title">Thank You,<br/><em id="heroName">Friend.</em></h1>
+  <p class="confirm-sub">Your order has been received. We'll reach out on WhatsApp within 24 hours to confirm everything and arrange delivery.</p>
+  <div class="order-number-badge">
+    <span>Order</span> #<strong id="orderNum">—</strong>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main-wrap">
+
+  <!-- Order Items -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-head-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+      </span>
+      <span class="card-head-title">Your Order</span>
+    </div>
+    <div class="card-body">
+      <div id="orderItems"><!-- filled by JS --></div>
+      <div class="totals-divider"></div>
+      <div class="totals-row"><span>Subtotal</span><span id="subtotalVal">KD 0.000</span></div>
+      <div class="totals-row"><span>Shipping</span><span>Confirmed via WhatsApp</span></div>
+      <div class="totals-divider"></div>
+      <div class="totals-final">
+        <span class="totals-final-label">Total</span>
+        <span class="totals-final-amount" id="totalVal">KD 0.000</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delivery Details -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-head-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      </span>
+      <span class="card-head-title">Delivery Details</span>
+    </div>
+    <div class="card-body">
+      <div class="detail-grid" id="deliveryDetails"><!-- filled by JS --></div>
+    </div>
+  </div>
+
+  <!-- What Happens Next -->
+  <div class="card">
+    <div class="card-head">
+      <span class="card-head-icon">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+      </span>
+      <span class="card-head-title">What Happens Next</span>
+    </div>
+    <div class="card-body">
+      <div class="steps-list">
+        <div class="next-step">
+          <div class="next-step-num">1</div>
+          <div>
+            <div class="next-step-title">WhatsApp Confirmation</div>
+            <div class="next-step-desc">We'll message you on WhatsApp within 24 hours to confirm your order, answer any questions, and share delivery details.</div>
+          </div>
+        </div>
+        <div class="next-step">
+          <div class="next-step-num">2</div>
+          <div>
+            <div class="next-step-title">Secure Payment</div>
+            <div class="next-step-desc">Once confirmed, we'll send you a secure payment link. Your payment is protected and only processed after we both agree on the details.</div>
+          </div>
+        </div>
+        <div class="next-step">
+          <div class="next-step-num">3</div>
+          <div>
+            <div class="next-step-title">Packing &amp; Dispatch</div>
+            <div class="next-step-desc">Your bag is carefully wrapped and dispatched. We'll send you a tracking number as soon as it ships.</div>
+          </div>
+        </div>
+        <div class="next-step">
+          <div class="next-step-num">4</div>
+          <div>
+            <div class="next-step-title">Delivered to Your Door</div>
+            <div class="next-step-desc">Enjoy your new piece. Each bag comes with an authenticity card. Kuwait delivery is typically 1–2 days; Gulf countries 3–5 days.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA Buttons -->
+  <div class="cta-row">
+    <a href="index.html" class="btn-dark">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Continue Shopping
+    </a>
+    <div class="btn-wa" onclick="contactWhatsApp()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>
+      Message Us on WhatsApp
+    </div>
+  </div>
+
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">UrbanCloset</div>
+      <p class="footer-tagline">Authentic preloved designer bags, curated for the bold &amp; intentional.</p>
+      <div class="footer-contact">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;opacity:.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Kuwait, Salmiya
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;margin-top:1px;opacity:.6"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>
+          <a href="https://wa.me/96590910123" target="_blank" style="color:inherit;text-decoration:none;">+965 9091 0123</a>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;opacity:.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="mailto:admin@urbancloset.kw" style="color:inherit;text-decoration:none;">admin@urbancloset.kw</a>
+        </div>
+      </div>
+      <div class="footer-social">
+        <a href="https://wa.me/96590910123" target="_blank" title="WhatsApp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2zm.001 18c-1.66 0-3.21-.507-4.487-1.375l-.322-.19-3.343.877.893-3.258-.209-.336A7.959 7.959 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>
+        </a>
+        <a href="https://instagram.com/urbancloset" target="_blank" title="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+        <a href="mailto:admin@urbancloset.kw" title="Email">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        </a>
+      </div>
+      <div class="footer-qr">
+        <div class="footer-qr-label">Scan to WhatsApp us</div>
+        <svg width="80" height="80" viewBox="0 0 29 29" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+          <rect width="29" height="29" fill="rgba(184,147,106,0.08)" rx="3"/>
+          <rect x="2" y="2" width="7" height="7" fill="none" stroke="rgba(184,147,106,0.7)" stroke-width="1"/>
+          <rect x="3.5" y="3.5" width="4" height="4" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="2" width="7" height="7" fill="none" stroke="rgba(184,147,106,0.7)" stroke-width="1"/>
+          <rect x="21.5" y="3.5" width="4" height="4" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="20" width="7" height="7" fill="none" stroke="rgba(184,147,106,0.7)" stroke-width="1"/>
+          <rect x="3.5" y="21.5" width="4" height="4" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="2" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="2" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="2" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="4" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="14" y="4" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="4" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="6" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="13" y="6" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="8" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="15" y="8" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="6" y="10" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="10" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="10" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="21" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="12" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="5" y="12" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="12" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="14" y="12" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="12" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="21" y="12" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="24" y="12" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="14" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="7" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="11" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="13" y="14" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="14" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="24" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="26" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="16" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="4" y="16" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="8" y="16" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="16" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="15" y="16" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="19" y="16" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="22" y="16" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="18" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="6" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="18" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="23" y="18" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="20" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="14" y="20" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="20" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="20" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="23" y="20" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="20" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="22" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="13" y="22" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="22" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="22" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="22" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="24" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="15" y="24" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="18" y="24" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="22" y="24" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="24" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="26" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="26" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="26" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="21" y="26" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="26" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(184,147,106,0.3);margin-top:4px;">wa.me/96590910123</div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a href="index.html#new-arrivals">New Arrivals</a>
+      <a href="#">Shop All</a>
+      <a href="#">Series 1</a>
+      <a href="#">Series 2</a>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <a href="index.html#how-to-order">How to Order</a>
+      <a href="index.html#authenticity">Authenticity</a>
+      <a href="index.html#consignment">Consignment</a>
+      <a href="https://wa.me/96590910123" target="_blank">WhatsApp Us</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="tel:+96590910123">+965 9091 0123</a>
+      <a href="mailto:admin@urbancloset.kw">admin@urbancloset.kw</a>
+      <a href="https://instagram.com/urbancloset" target="_blank" style="display:flex;align-items:center;gap:6px;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        @urbancloset
+      </a>
+      <a href="https://wa.me/96590910123" target="_blank" style="display:flex;align-items:center;gap:6px;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>
+        WhatsApp Us
+      </a>
+      <a href="#">Kuwait Delivery</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 UrbanCloset. All rights reserved. Independently curated luxury preloved bags.</div>
+</footer>
+
+<script>
+
+
+/* ── DRAWER ── */
+function openDrawer() {
+  document.getElementById('sideDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('sideDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── CART BADGE ── */
+function updateCartBadge() {
+  var cart = JSON.parse(localStorage.getItem('uc_cart') || '[]');
+  var count = cart.reduce(function(s, i) { return s + (i.qty || 1); }, 0);
+  document.getElementById('cartBadge').textContent = count;
+  document.getElementById('cartDrawerCount').textContent = count;
+}
+updateCartBadge();
+
+/* ── BAG SVG PLACEHOLDER ── */
+function bagSVG() {
+  return '<svg viewBox="0 0 60 55" fill="none"><rect x="5" y="18" width="50" height="34" rx="3" fill="#A48374" opacity="0.35"/><path d="M18 18 C18 8 42 8 42 18" stroke="#A48374" stroke-width="3" fill="none" opacity="0.4"/><rect x="22" y="25" width="16" height="3" rx="1" fill="#CBAD8D" opacity="0.5"/></svg>';
+}
+
+/* ── RENDER CONFIRMATION ── */
+function renderConfirmation(order) {
+  document.getElementById('orderNum').textContent = String(order.id).slice(0, 8).toUpperCase();
+
+  var ci = order.customer_info || {};
+  var firstName = ci.name ? ci.name.split(' ')[0] : '';
+  if (firstName) {
+    document.getElementById('heroName').textContent = firstName + '.';
+  }
+
+  var items = order.items || [];
+  if (items.length) {
+    document.getElementById('orderItems').innerHTML = items.map(function(item) {
+      var imgHtml = item.image_url
+        ? '<img src="' + item.image_url + '" alt="' + (item.name || '') + '" style="width:100%;height:100%;object-fit:cover;">'
+        : bagSVG();
+      return '<div class="order-item">' +
+        '<div class="order-item-img">' + imgHtml + '</div>' +
+        '<div class="order-item-info">' +
+          '<div class="order-item-brand">' + (item.brand || '') + '</div>' +
+          '<div class="order-item-name">' + (item.name || '') + '</div>' +
+          '<div class="order-item-cond">' + (item.condition || '') + ' &nbsp;·&nbsp; Ref #' + String(item.id).padStart(3, '0') + '</div>' +
+        '</div>' +
+        '<div class="order-item-price">KD ' + parseFloat(item.price || 0).toFixed(3) + '</div>' +
+      '</div>';
+    }).join('');
+
+    document.getElementById('subtotalVal').textContent = 'KD ' + parseFloat(order.total || 0).toFixed(3);
+    document.getElementById('totalVal').textContent    = 'KD ' + parseFloat(order.total || 0).toFixed(3);
+  } else {
+    document.getElementById('orderItems').innerHTML = '<p style="color:var(--muted);font-size:13px;padding:12px 0;">Order details not available.</p>';
+  }
+
+  var countryNames = { KW: 'Kuwait', AE: 'UAE', BH: 'Bahrain', QA: 'Qatar', SA: 'Saudi Arabia', OM: 'Oman' };
+  var fields = [
+    { label: 'Name',    value: ci.name    || '—' },
+    { label: 'Phone',   value: ci.phone   || '—' },
+    { label: 'Country', value: countryNames[ci.country] || ci.country || '—' },
+    { label: 'City',    value: ci.city    || '—' },
+    { label: 'Address', value: ci.address || '—' },
+    { label: 'Email',   value: ci.email   || '—' }
+  ];
+  if (ci.notes) fields.push({ label: 'Notes', value: ci.notes });
+  document.getElementById('deliveryDetails').innerHTML = fields.map(function(f) {
+    return '<div class="detail-item">' +
+      '<div class="detail-label">' + f.label + '</div>' +
+      '<div class="detail-value">' + f.value + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+/* ── WHATSAPP ── */
+function contactWhatsApp() {
+  var params = new URLSearchParams(window.location.search);
+  var orderId = params.get('orderId') || '';
+  var msg = 'Hi UrbanCloset! I just placed order #' + orderId + ' and wanted to follow up.';
+  window.open('https://wa.me/96590910123?text=' + encodeURIComponent(msg), '_blank');
+}
+
+/* ── LOAD ORDER FROM BACKEND ── */
+async function loadOrder() {
+  var params  = new URLSearchParams(window.location.search);
+  var orderId = params.get('orderId');
+  var token   = localStorage.getItem('uc_token');
+
+  if (!orderId || !token) {
+    window.location.href = 'index.html';
+    return;
+  }
+
+  // Poll verify once to let backend re-confirm with Deema if still pending
+  try {
+    await fetch(API_URL + '/payment/verify?orderId=' + orderId, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+  } catch (e) { /* non-critical */ }
+
+  try {
+    var res = await fetch(API_URL + '/orders/' + orderId, {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (res.status === 401 || res.status === 403) {
+      window.location.href = 'login.html';
+      return;
+    }
+    if (!res.ok) throw new Error('Order not found');
+    var order = await res.json();
+    renderConfirmation(order.data || order);
+  } catch (e) {
+    document.getElementById('orderItems').innerHTML =
+      '<p style="color:var(--muted);font-size:13px;padding:12px 0;">Could not load order details. <a href="orders.html" style="color:var(--tan);">View all orders</a></p>';
+  }
+}
+
+loadOrder();
+</script>
+
+</body>
+</html>

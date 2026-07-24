@@ -1,0 +1,87 @@
+[33mcommit 4736988a9f74fabe791746a8c5e0a0b5cf9fdab7[m
+Author: Julliana-boop <jlg070204@gmail.com>
+Date:   Wed Jun 17 23:03:18 2026 +0800
+
+    Move assets into pages folder and fix paths
+
+ .../assets}/images/banners/bvlgariseprenti.avif             | Bin
+ {assets => pages/assets}/images/banners/channelclassic.jpg  | Bin
+ {assets => pages/assets}/images/banners/herologo.webp       | Bin
+ {assets => pages/assets}/images/banners/lvbeverlybag.webp   | Bin
+ .../images/products/series01/chanel-cerfblue/detailed.png   | Bin
+ .../images/products/series01/chanel-cerfblue/front.png      | Bin
+ .../products/series01/chanel-patchworkflapbag/detailed.png  | Bin
+ .../products/series01/chanel-patchworkflapbag/front.png     | Bin
+ .../products/series01/chanel-patchworkflapbag/side.png      | Bin
+ .../products/series01/chanel-white-classiflap/back.png      | Bin
+ .../products/series01/chanel-white-classiflap/front.png     | Bin
+ .../series01/louisvuitton-monogrampallas-chain/back.png     | Bin
+ .../series01/louisvuitton-monogrampallas-chain/front.png    | Bin
+ .../images/products/series02/LV-beverlybag2008/clasp.png    | Bin
+ .../products/series02/LV-beverlybag2008/front (8).png       | Bin
+ .../images/products/series02/LV-beverlybag2008/side (2).png | Bin
+ .../products/series02/LV-beverlybag2008/sidefront.png       | Bin
+ .../series02/LV-kensingtonVtote-inDamienEbener/back (6).png | Bin
+ .../LV-kensingtonVtote-inDamienEbener/detailfront.png       | Bin
+ .../series02/LV-kensingtonVtote-inDamienEbener/side (3).png | Bin
+ .../LV-kensingtonVtote-inDamienEbener/sidefront (2).png     | Bin
+ .../products/series02/LV-lockme-backpack/front (9).png      | Bin
+ .../products/series02/LV-lockme-backpack/full front.png     | Bin
+ .../products/series02/LV-lockme-backpack/side (4).png       | Bin
+ .../series02/balenciaga-lecity-minibag/back (3).png         | Bin
+ .../products/series02/balenciaga-lecity-minibag/bottom.png  | Bin
+ .../series02/balenciaga-lecity-minibag/detailed-front.png   | Bin
+ .../series02/balenciaga-lecity-minibag/front (5).png        | Bin
+ .../series02/balenciaga-lecity-minibag/interior.png         | Bin
+ .../bvlgari-serpentineforever-shoulderbag/back (4).png      | Bin
+ .../buttondetailed.png                                      | Bin
+ .../bvlgari-serpentineforever-shoulderbag/front (6).png     | Bin
+ .../bvlgari-serpentineforever-shoulderbag/frontcloseup[.png | Bin
+ .../bvlgari-serpentineforever-shoulderbag/insidedetail.png  | Bin
+ .../products/series02/christiandior-ladybag/back (5).png    | Bin
+ .../series02/christiandior-ladybag/detail charm.png         | Bin
+ .../products/series02/christiandior-ladybag/front (7).png   | Bin
+ .../series02/christiandior-ladybag/interiordetail.png       | Bin
+ .../products/series02/christiandior-ladybag/topopen.png     | Bin
+ .../products/series03/alexanderwang-rocco/back (7).png      | Bin
+ .../products/series03/alexanderwang-rocco/detailstud.png    | Bin
+ .../products/series03/alexanderwang-rocco/interior (2).png  | Bin
+ .../products/series03/alexanderwang-rocco/open top.png      | Bin
+ .../products/series03/alexanderwang-rocco/side (5).png      | Bin
+ .../images/products/series03/alexanderwang-rocco/zipper.png | Bin
+ .../balenciaga-navycanvas-totebag/backwaccercories.png      | Bin
+ .../series03/balenciaga-navycanvas-totebag/bottom (2).png   | Bin
+ .../series03/balenciaga-navycanvas-totebag/frontwpouch.png  | Bin
+ .../series03/balenciaga-navycanvas-totebag/interior (3).png | Bin
+ .../series03/balenciaga-navycanvas-totebag/side (6).png     | Bin
+ .../series03/balenciaga-striped-bazarshopper/52.png         | Bin
+ .../series03/balenciaga-striped-bazarshopper/back (8).png   | Bin
+ .../balenciaga-striped-bazarshopper/bottomwithtags.png      | Bin
+ .../series03/balenciaga-striped-bazarshopper/detaillogo.png | Bin
+ .../series03/balenciaga-striped-bazarshopper/front (10).png | Bin
+ .../series03/balenciaga-striped-bazarshopper/side (7).png   | Bin
+ .../series03/balenciaga-striped-bazarshopper/sideright.png  | Bin
+ .../balenciaga-striped-bazarshopper/topopen (2).png         | Bin
+ .../images/products/series03/fendi-btw-bostonbag/58.png     | Bin
+ .../products/series03/fendi-btw-bostonbag/back (9).png      | Bin
+ .../series03/fendi-btw-bostonbag/detailhardware.png         | Bin
+ .../series03/fendi-btw-bostonbag/front and back.png         | Bin
+ .../products/series03/fendi-btw-bostonbag/sideright (2).png | Bin
+ .../series03/prada-crocodileleathercahier/back (10).png     | Bin
+ .../series03/prada-crocodileleathercahier/front (11).png    | Bin
+ .../prada-crocodileleathercahier/frontwaccecosires.png      | Bin
+ .../series03/prada-crocodileleathercahier/interior (4).png  | Bin
+ .../series03/prada-crocodileleathercahier/interioropen.png  | Bin
+ .../products/series03/prada-crocodileleathercahier/lock.png | Bin
+ .../series03/prada-crocodileleathercahier/sideleft.png      | Bin
+ .../back (11).png                                           | Bin
+ .../bottom (3).png                                          | Bin
+ .../victoria-beckham-twotoneleather-satchelbag/detail.png   | Bin
+ .../victoria-beckham-twotoneleather-satchelbag/label.png    | Bin
+ .../victoria-beckham-twotoneleather-satchelbag/open.png     | Bin
+ .../victoria-beckham-twotoneleather-satchelbag/top.png      | Bin
+ .../zipper (2).png                                          | Bin
+ pages/confirm.html                                          |   2 [32m+[m[31m-[m
+ pages/index.html                                            |  10 [32m+++++[m[31m-----[m
+ pages/product.html                                          |   2 [32m+[m[31m-[m
+ 80 files changed, 7 insertions(+), 7 deletions(-)

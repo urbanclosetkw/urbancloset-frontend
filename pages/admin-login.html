@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login — UrbanCloset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="config.js"></script>
+  
+  <style>
+    :root {
+      --dark:  #1a1008;
+      --dark2: #2c2318;
+      --gold:  #CBAD8D;
+      --tan:   #A48374;
+      --sand:  #D1C7BD;
+      --cream: #F5F0EA;
+      --muted: #7a6a5a;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans:  'DM Sans', sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--dark);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    /* background pattern */
+    body::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(203,173,141,0.06) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(164,131,116,0.05) 0%, transparent 50%);
+    }
+
+    .login-card {
+      position: relative;
+      z-index: 1;
+      width: 100%;
+      max-width: 400px;
+      margin: 24px;
+      background: rgba(44,35,24,0.6);
+      border: 1px solid rgba(203,173,141,0.15);
+      border-radius: 6px;
+      padding: 48px 40px 40px;
+      backdrop-filter: blur(10px);
+    }
+
+    .logo {
+      font-family: var(--font-serif);
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--gold);
+      letter-spacing: 4px;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    .logo-sub {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: rgba(203,173,141,0.4);
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: rgba(203,173,141,0.6);
+      margin-bottom: 6px;
+    }
+    .form-input {
+      width: 100%;
+      background: rgba(26,16,8,0.6);
+      border: 1.5px solid rgba(203,173,141,0.15);
+      border-radius: 3px;
+      padding: 12px 14px;
+      font-size: 14px;
+      font-family: var(--font-sans);
+      color: var(--gold);
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus { border-color: rgba(203,173,141,0.5); }
+    .form-input::placeholder { color: rgba(203,173,141,0.25); }
+
+    .btn-login {
+      width: 100%;
+      background: var(--tan);
+      color: #fff;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      padding: 14px;
+      border-radius: 3px;
+      border: none;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      margin-top: 8px;
+      transition: background 0.2s;
+    }
+    .btn-login:hover { background: #8a6e62; }
+    .btn-login:disabled { background: rgba(164,131,116,0.35); cursor: not-allowed; }
+
+    .error-msg {
+      background: rgba(192,57,43,0.15);
+      border: 1px solid rgba(192,57,43,0.3);
+      color: #e87070;
+      font-size: 12px;
+      padding: 10px 14px;
+      border-radius: 3px;
+      margin-top: 14px;
+      display: none;
+      text-align: center;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 24px;
+      font-size: 11px;
+      color: rgba(203,173,141,0.35);
+      transition: color 0.2s;
+      text-decoration: none;
+    }
+    .back-link:hover { color: var(--gold); }
+
+    .lock-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: rgba(203,173,141,0.08);
+      border: 1px solid rgba(203,173,141,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin: 0 auto 20px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-card">
+  <div class="lock-icon">🔒</div>
+  <div class="logo">UrbanCloset</div>
+  <div class="logo-sub">Admin Panel</div>
+
+  <div class="form-group">
+    <label class="form-label" for="username">Username</label>
+    <input class="form-input" type="text" id="username" placeholder="admin" autocomplete="username"/>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label" for="password">Password</label>
+    <input class="form-input" type="password" id="password" placeholder="••••••••" autocomplete="current-password"/>
+  </div>
+
+  <button class="btn-login" id="btnLogin" onclick="login()">Sign In</button>
+
+  <div class="error-msg" id="errorMsg">Invalid username or password.</div>
+
+  <a href="../frontend/index.html" class="back-link">← Back to store</a>
+</div>
+
+<script>
+  // Allow pressing Enter to login
+  document.getElementById('password').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') login();
+  });
+  document.getElementById('username').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') login();
+  });
+
+  async function login() {
+    var username = document.getElementById('username').value.trim();
+    var password = document.getElementById('password').value.trim();
+    var btn      = document.getElementById('btnLogin');
+    var errMsg   = document.getElementById('errorMsg');
+
+    if (!username || !password) {
+      errMsg.textContent = 'Please enter your username and password.';
+      errMsg.style.display = 'block';
+      return;
+    }
+
+    btn.textContent = 'Signing in…';
+    btn.disabled = true;
+    errMsg.style.display = 'none';
+
+    try {
+      var res = await fetch(API_URL + '/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      });
+
+      var data = await res.json();
+
+      if (!res.ok || !data.token) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Save token to sessionStorage
+      sessionStorage.setItem('uc_admin_token', data.token);
+      sessionStorage.setItem('uc_admin_user', username);
+
+      // Redirect to products dashboard
+      window.location.href = 'admin-products.html';
+
+    } catch (err) {
+      errMsg.textContent = err.message || 'Invalid username or password.';
+      errMsg.style.display = 'block';
+      btn.textContent = 'Sign In';
+      btn.disabled = false;
+    }
+  }
+
+  // If already logged in, skip login page
+  if (sessionStorage.getItem('uc_admin_token')) {
+    window.location.href = 'admin-products.html';
+  }
+</script>
+
+</body>
+</html>

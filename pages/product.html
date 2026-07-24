@@ -1,0 +1,1662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product — UrbanCloset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="config.js"></script>
+  <script src="cart.js"></script>
+  <script src="currency.js"></script>
+  <style>
+    /* ── VARIABLES ─────────────────────────────────────── */
+    :root {
+      --dark:    #150d05;
+      --dark2:   #241a0f;
+      --gold:    #B8936A;
+      --tan:     #8B5E4A;
+      --sand:    #C4B09A;
+      --cream:   #F0E8DE;
+      --white:   #ffffff;
+      --muted:   #7a6a5a;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans:  'DM Sans', sans-serif;
+    }
+
+    /* ── RESET ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--cream); font-family: var(--font-sans); color: var(--dark2); }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ── TOPBAR ─────────────────────────────────────────── */
+    .topbar {
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 7px 16px;
+    }
+
+    /* ── NAVBAR ─────────────────────────────────────────── */
+    .navbar {
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 28px;
+      border-bottom: 1px solid var(--tan);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .nav-ham {
+      color: var(--dark2);
+      cursor: pointer;
+      padding: 4px 6px;
+      border-radius: 3px;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+    }
+    .nav-ham:hover { background: rgba(44,35,24,0.12); }
+    .nav-logo {
+      font-family: var(--font-serif);
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--dark2);
+      letter-spacing: 3px;
+    }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-icons { color: var(--dark2); display: flex; gap: 12px; align-items: center; }
+    .nav-icons span { display: inline-flex; align-items: center; cursor: pointer; }
+    .cart-count {
+      background: var(--tan);
+      color: #fff;
+      font-size: 9px;
+      width: 17px;
+      height: 17px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      top: -6px;
+      left: -8px;
+    }
+    .nav-cta {
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 9px;
+      padding: 6px 14px;
+      border-radius: 2px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      transition: opacity 0.2s;
+      cursor: pointer;
+    }
+    .nav-cta:hover { opacity: 0.85; }
+
+    /* ── SIDE DRAWER ────────────────────────────────────── */
+    .drawer-overlay {
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.45);
+      z-index: 299; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+    .side-drawer {
+      position: fixed; top: 0; left: 0;
+      width: 260px; height: 100%;
+      background: var(--dark);
+      z-index: 300;
+      transform: translateX(-100%);
+      transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+      display: flex; flex-direction: column;
+    }
+    .side-drawer.open { transform: translateX(0); }
+    .drawer-head {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 18px 14px;
+      border-bottom: 1px solid rgba(203,173,141,0.12);
+    }
+    .drawer-logo { font-family: var(--font-serif); font-size: 16px; color: var(--gold); letter-spacing: 2px; }
+    .drawer-close {
+      color: rgba(203,173,141,0.5);
+      cursor: pointer; transition: color 0.2s;
+      display: flex; align-items: center;
+    }
+    .drawer-close:hover { color: var(--gold); }
+    .drawer-nav { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .drawer-nav a {
+      display: flex; align-items: center; gap: 10px;
+      padding: 11px 18px;
+      font-size: 10px; letter-spacing: 2px; text-transform: uppercase;
+      color: rgba(203,173,141,0.75);
+      border-left: 2px solid transparent;
+      transition: all 0.2s;
+    }
+    .drawer-nav a svg { flex-shrink: 0; opacity: 0.7; }
+    .drawer-nav a:hover svg, .drawer-nav a.active svg { opacity: 1; }
+    .drawer-nav a:hover, .drawer-nav a.active {
+      color: var(--gold);
+      border-left-color: var(--tan);
+      background: rgba(203,173,141,0.05);
+    }
+    .drawer-divider { height: 1px; background: rgba(203,173,141,0.1); margin: 6px 18px; }
+    .drawer-section-label {
+      padding: 8px 18px 3px;
+      font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase;
+      color: rgba(203,173,141,0.35);
+    }
+    .drawer-badge {
+      background: var(--tan); color: #fff;
+      font-size: 8px; padding: 1px 6px; border-radius: 10px;
+      margin-left: auto;
+    }
+    .drawer-foot {
+      padding: 14px 18px;
+      border-top: 1px solid rgba(203,173,141,0.1);
+      font-size: 10px; color: rgba(203,173,141,0.45); line-height: 1.7;
+    }
+
+    /* ── BREADCRUMB ─────────────────────────────────────── */
+    .breadcrumb {
+      padding: 14px 32px;
+      font-size: 11px; color: var(--muted);
+      display: flex; gap: 6px; align-items: center;
+      background: var(--cream);
+    }
+    .breadcrumb a { color: var(--muted); transition: color 0.2s; }
+    .breadcrumb a:hover { color: var(--tan); }
+    .breadcrumb span { color: var(--dark2); }
+
+    /* ── PRODUCT LAYOUT ─────────────────────────────────── */
+    .product-wrap {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: start;
+      gap: 0;
+      max-width: 1100px;
+      margin: 0 auto;
+      background: #fff;
+    }
+
+    /* ── IMAGE PANEL ────────────────────────────────────── */
+    .img-panel { position: relative; background: var(--sand); }
+
+    /* Main image container */
+    .main-img-wrap {
+      position: relative;
+      aspect-ratio: 3/4;
+    }
+    .main-img-wrap.no-image {
+      aspect-ratio: 1/1;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--sand);
+      cursor: zoom-in;
+    }
+
+    /* Fade transition layer */
+    .main-img-wrap .img-layer {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 300ms ease;
+    }
+    .main-img-wrap .img-layer img {
+      width: 100%; height: 100%; object-fit: cover;
+      transform-origin: center center;
+      transition: transform 300ms ease;
+      will-change: transform;
+    }
+    .main-img-wrap .img-layer.fade-out { opacity: 0; }
+    .main-img-wrap .img-layer.fade-in  { opacity: 1; }
+
+    /* Zoom lens overlay (desktop) */
+    .zoom-lens {
+      position: absolute; inset: 0; pointer-events: none; z-index: 5;
+      overflow: hidden;
+    }
+    .zoom-lens.active { cursor: none; }
+    .zoom-result {
+      position: absolute;
+      top: 0; left: calc(100% + 8px);
+      width: 100%; height: 100%;
+      border: 1px solid rgba(184,147,106,0.3);
+      background: var(--sand) no-repeat center center;
+      background-size: 300%;
+      z-index: 100;
+      opacity: 0; pointer-events: none;
+      transition: opacity 200ms ease;
+      box-shadow: 4px 0 32px rgba(21,13,5,0.18);
+    }
+    .zoom-result.visible { opacity: 1; }
+
+    /* Open lightbox hint */
+    .expand-hint {
+      position: absolute; bottom: 14px; right: 14px; z-index: 10;
+      background: rgba(21,13,5,0.62); color: var(--gold);
+      font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 5px 11px; border-radius: 20px;
+      display: flex; align-items: center; gap: 5px;
+      transition: background 0.2s; pointer-events: all; cursor: pointer;
+    }
+    .expand-hint:hover { background: rgba(21,13,5,0.85); }
+
+    .img-placeholder {
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .img-placeholder svg { width: 120px; opacity: 0.5; }
+    .auth-badge {
+      position: absolute; top: 16px; left: 16px; z-index: 10;
+      background: rgba(26,16,8,0.75); color: var(--gold);
+      font-size: 9px; letter-spacing: 1.5px;
+      padding: 5px 12px; border-radius: 20px; text-transform: uppercase;
+      display: flex; align-items: center; gap: 5px;
+    }
+    .condition-badge {
+      position: absolute; top: 16px; right: 16px; z-index: 10;
+      background: var(--tan); color: #fff;
+      font-size: 9px; letter-spacing: 1px;
+      padding: 5px 12px; border-radius: 20px; text-transform: uppercase;
+    }
+
+    /* Thumbnail strip */
+    .thumb-strip {
+      display: flex; gap: 8px; padding: 12px 12px 14px;
+      background: var(--cream); overflow-x: auto;
+      scrollbar-width: thin; scrollbar-color: var(--sand) transparent;
+    }
+    .thumb-strip::-webkit-scrollbar { height: 3px; }
+    .thumb-strip::-webkit-scrollbar-thumb { background: var(--sand); border-radius: 2px; }
+    .thumb {
+      width: 68px; height: 68px; border-radius: 4px; overflow: hidden;
+      cursor: pointer; border: 2px solid transparent;
+      transition: border-color 300ms ease, transform 200ms ease, box-shadow 200ms ease;
+      flex-shrink: 0; background: var(--sand);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .thumb:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(21,13,5,0.15); }
+    .thumb.active {
+      border-color: var(--tan);
+      box-shadow: 0 0 0 1px var(--tan);
+    }
+    .thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+    /* ── LIGHTBOX ───────────────────────────────────────── */
+    .lightbox-overlay {
+      position: fixed; inset: 0; z-index: 9000;
+      background: rgba(15,9,4,0.95);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0; pointer-events: none;
+      transition: opacity 300ms ease;
+    }
+    .lightbox-overlay.open { opacity: 1; pointer-events: all; }
+
+    .lightbox-inner {
+      position: relative; width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    .lightbox-img-wrap {
+      position: relative;
+      max-width: min(80vw, 600px);
+      max-height: 90vh;
+      aspect-ratio: 3/4;
+      overflow: hidden;
+      touch-action: pinch-zoom pan-y;
+    }
+    .lightbox-img-wrap img {
+      width: 100%; height: 100%; object-fit: cover;
+      transition: opacity 300ms ease, transform 300ms ease;
+      touch-action: pinch-zoom;
+      user-select: none;
+    }
+    .lightbox-img-wrap img.swipe-left  { transform: translateX(-40px); opacity: 0; }
+    .lightbox-img-wrap img.swipe-right { transform: translateX(40px);  opacity: 0; }
+
+    .lightbox-close {
+      position: absolute; top: 20px; right: 20px;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: rgba(184,147,106,0.12); border: 1px solid rgba(184,147,106,0.25);
+      color: var(--gold); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.2s, transform 0.2s; z-index: 10;
+    }
+    .lightbox-close:hover { background: rgba(184,147,106,0.25); transform: rotate(90deg); }
+
+    .lightbox-arrow {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 44px; height: 44px; border-radius: 50%;
+      background: rgba(184,147,106,0.12); border: 1px solid rgba(184,147,106,0.22);
+      color: var(--gold); display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: background 0.2s, transform 0.2s; z-index: 10;
+    }
+    .lightbox-arrow:hover { background: rgba(184,147,106,0.28); }
+    .lightbox-arrow.prev { left: 20px; }
+    .lightbox-arrow.prev:hover { transform: translateY(-50%) translateX(-2px); }
+    .lightbox-arrow.next { right: 20px; }
+    .lightbox-arrow.next:hover { transform: translateY(-50%) translateX(2px); }
+
+    .lightbox-dots {
+      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 7px; align-items: center;
+    }
+    .lightbox-dot {
+      width: 6px; height: 6px; border-radius: 50%;
+      background: rgba(184,147,106,0.3);
+      cursor: pointer; transition: background 0.2s, transform 0.2s;
+    }
+    .lightbox-dot.active { background: var(--gold); transform: scale(1.3); }
+
+    .lightbox-counter {
+      position: absolute; bottom: 20px; right: 20px;
+      font-size: 10px; letter-spacing: 2px; color: rgba(184,147,106,0.5);
+    }
+
+    @media (max-width: 700px) {
+      .lightbox-img-wrap { max-width: 95vw; max-height: 80vh; }
+      .lightbox-arrow { width: 36px; height: 36px; }
+      .lightbox-arrow.prev { left: 8px; }
+      .lightbox-arrow.next { right: 8px; }
+      .zoom-result { display: none; }
+      .expand-hint { bottom: 10px; right: 10px; }
+    }
+
+    /* ── INFO PANEL ─────────────────────────────────────── */
+    .info-panel { padding: 40px 40px 32px; display: flex; flex-direction: column; gap: 0; }
+    .product-series {
+      font-size: 9px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--tan); margin-bottom: 8px;
+    }
+    .product-brand {
+      font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 6px;
+    }
+    .product-name {
+      font-family: var(--font-serif); font-size: 42px; font-weight: 700;
+      color: var(--dark2); line-height: 1.05; margin-bottom: 12px;
+    }
+
+    /* Condition star rating */
+    .condition-rating-row {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 4px;
+    }
+    .condition-stars { display: flex; gap: 2px; }
+    .condition-stars svg { display: inline-block; }
+    .condition-score { font-size: 11px; color: var(--muted); }
+    .product-condition-text { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
+
+    /* Price */
+    .price-row { display: flex; align-items: baseline; gap: 12px; margin-bottom: 24px; }
+    .price-kwd { font-family: var(--font-serif); font-size: 38px; font-weight: 700; color: var(--tan); }
+    .price-usd { font-size: 14px; color: var(--muted); }
+
+    /* Divider */
+    .divider { height: 1px; background: rgba(164,131,116,0.15); margin: 14px 0; }
+
+    /* Details grid */
+    .details-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px; margin-bottom: 14px; }
+    .detail-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 3px; }
+    .detail-value { font-size: 13px; color: var(--dark2); font-weight: 500; }
+
+    /* Description */
+    .desc-text { font-size: 13px; color: var(--muted); line-height: 1.7; margin-bottom: 14px; }
+
+    /* Condition + Inclusions merged card */
+    .condition-breakdown {
+      background: var(--cream); border-radius: 4px;
+      padding: 14px 16px; margin-bottom: 14px;
+      border-left: 3px solid var(--tan);
+    }
+    .condition-breakdown-title {
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+      cursor: pointer; list-style: none;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .condition-breakdown-title::-webkit-details-marker { display: none; }
+    .condition-breakdown .chev { transition: transform 0.2s; color: var(--tan); }
+    .condition-breakdown[open] .chev { transform: rotate(180deg); }
+    .condition-row {
+      display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;
+    }
+    .condition-row:last-child { margin-bottom: 0; }
+    .condition-aspect { font-size: 11px; color: var(--muted); }
+    .condition-bar-wrap { width: 100px; height: 4px; background: rgba(164,131,116,0.2); border-radius: 2px; overflow: hidden; }
+    .condition-bar { height: 100%; background: var(--tan); border-radius: 2px; }
+
+    /* Inclusions */
+    .inclusions-block { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(164,131,116,0.15); }
+    .inclusions-title {
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 8px;
+    }
+    .inclusions-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .inclusion-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: #fff; border: 1px solid rgba(139,94,74,0.2);
+      border-radius: 20px; padding: 4px 10px;
+      font-size: 10px; color: var(--dark2);
+    }
+    .inclusion-tag svg { flex-shrink: 0; }
+    .inclusion-tag.missing {
+      background: rgba(164,131,116,0.08); border-color: rgba(164,131,116,0.15);
+      color: var(--muted); text-decoration: line-through; opacity: 0.6;
+    }
+
+    /* Authenticity block — compact */
+    .auth-block {
+      background: var(--dark2); border-radius: 4px;
+      padding: 12px 16px; margin-bottom: 14px;
+    }
+    .auth-block-title {
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--gold);
+      cursor: pointer; list-style: none;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .auth-block-title::-webkit-details-marker { display: none; }
+    .auth-block .chev { transition: transform 0.2s; color: var(--gold); }
+    .auth-block[open] .chev { transform: rotate(180deg); }
+    .auth-block[open] .auth-block-title { margin-bottom: 6px; }
+    .auth-block-text { font-size: 11px; color: rgba(184,147,106,0.8); line-height: 1.6; margin-bottom: 0; }
+    .auth-tpa-note {
+      font-size: 10px; color: rgba(184,147,106,0.55); line-height: 1.6;
+      display: flex; align-items: flex-start; gap: 6px;
+    }
+    .auth-tpa-note svg { flex-shrink: 0; margin-top: 1px; }
+    .auth-tpa-toggle {
+      font-size: 10px; color: var(--gold); cursor: pointer;
+      margin-top: 6px; text-decoration: underline; display: inline-block;
+    }
+    .auth-tpa-details { margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(184,147,106,0.12); }
+    .auth-tpa-details[open] .auth-tpa-toggle { display: none; }
+
+    /* Delivery block — collapsible */
+    .delivery-block {
+      border: 1px solid rgba(139,94,74,0.18); border-radius: 4px;
+      overflow: hidden; margin-bottom: 14px;
+    }
+    .delivery-block-title {
+      font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--muted); padding: 10px 14px;
+      background: rgba(139,94,74,0.04);
+      cursor: pointer; list-style: none;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .delivery-block-title::-webkit-details-marker { display: none; }
+    .delivery-block-title .chev { transition: transform 0.2s; color: var(--tan); }
+    .delivery-block[open] .delivery-block-title .chev { transform: rotate(180deg); }
+    .delivery-row {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 11px 14px; border-top: 1px solid rgba(139,94,74,0.08);
+    }
+    .delivery-row svg { flex-shrink: 0; margin-top: 1px; color: var(--tan); }
+    .delivery-row-label { font-size: 12px; color: var(--dark2); font-weight: 500; }
+    .delivery-row-sub { font-size: 11px; color: var(--muted); line-height: 1.5; margin-top: 1px; }
+
+    /* CTA buttons */
+    /* ── CTA BUTTONS ─────────────────────────────────────── */
+    .cta-group { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+
+    .btn-cta {
+      width: 100%; display: flex; align-items: center; justify-content: center; gap: 9px;
+      font-family: var(--font-sans); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+      padding: 15px 24px; border-radius: 50px; cursor: pointer; border: none;
+      transition: background 300ms ease, color 300ms ease, border-color 300ms ease,
+                  box-shadow 300ms ease, transform 300ms ease;
+      user-select: none;
+    }
+    .btn-cta svg { flex-shrink: 0; transition: transform 300ms ease; }
+    .btn-cta:hover svg { transform: scale(1.15); }
+
+    /* Add to Cart — outlined minimalist */
+    .btn-add-cart {
+      background: transparent; color: var(--dark2);
+      border: 1.5px solid var(--dark2); font-weight: 500;
+    }
+    .btn-add-cart:hover { background: var(--dark2); color: var(--gold); }
+    .btn-add-cart.added { background: #3d6b3a; color: #fff; border-color: #3d6b3a; }
+
+    /* Buy Now — primary, most prominent */
+    .btn-buy-now {
+      background: var(--tan); color: #fff;
+      border: 1.5px solid var(--tan); font-weight: 600;
+      box-shadow: 0 4px 18px rgba(139,94,74,0.28);
+    }
+    .btn-buy-now:hover {
+      background: var(--dark2); border-color: var(--dark2);
+      box-shadow: 0 6px 24px rgba(21,13,5,0.22); transform: translateY(-1px);
+    }
+    .btn-buy-now:active { transform: translateY(0); }
+
+    /* Disabled state (out of stock) */
+    .btn-cta:disabled {
+      opacity: 0.45; cursor: not-allowed; box-shadow: none; transform: none;
+    }
+    .btn-cta:disabled:hover { transform: none; box-shadow: none; }
+
+    /* Stock badge */
+    .stock-badge {
+      display: inline-block; font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      padding: 5px 12px; border-radius: 20px; font-weight: 600; margin: 8px 0 14px;
+    }
+    .stock-badge.out {
+      background: rgba(192,57,43,0.1); color: #c0392b; border: 1px solid rgba(192,57,43,0.25);
+    }
+    .stock-badge.low {
+      background: rgba(184,147,106,0.12); color: var(--tan); border: 1px solid rgba(184,147,106,0.3);
+    }
+
+    /* WhatsApp — outlined green */
+    .btn-whatsapp-new {
+      background: transparent; color: #0e7a52;
+      border: 1.5px solid #0e7a52; font-weight: 400;
+    }
+    .btn-whatsapp-new:hover { background: #0e7a52; color: #fff; }
+
+    /* Hide old buttons */
+    .btn-primary, .btn-whatsapp, .btn-outline-dark { display: none !important; }
+
+    /* ── TOAST ──────────────────────────────────────────── */
+    .toast-container {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      z-index: 9999; pointer-events: none;
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+    }
+    .toast {
+      display: inline-flex; align-items: center; gap: 9px;
+      background: var(--dark2); color: var(--gold);
+      font-family: var(--font-sans); font-size: 11px; letter-spacing: 1.5px;
+      text-transform: uppercase; padding: 12px 22px; border-radius: 50px;
+      border: 1px solid rgba(184,147,106,0.25);
+      box-shadow: 0 8px 32px rgba(21,13,5,0.32);
+      opacity: 0; transform: translateY(12px) scale(0.97);
+      transition: opacity 300ms ease, transform 300ms ease;
+      white-space: nowrap;
+    }
+    .toast.show { opacity: 1; transform: translateY(0) scale(1); }
+    .toast-icon {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: rgba(92,138,90,0.2); border: 1px solid rgba(92,138,90,0.45);
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+
+    /* Trust row */
+    .trust-row {
+      display: flex; gap: 16px; flex-wrap: wrap;
+      padding: 12px 0;
+      border-top: 1px solid rgba(164,131,116,0.15);
+      border-bottom: 1px solid rgba(164,131,116,0.15);
+      margin-bottom: 14px;
+    }
+    .trust-item { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--muted); }
+    .trust-item svg { color: var(--tan); flex-shrink: 0; }
+
+    /* Ref number */
+    .ref-row { font-size: 10px; color: var(--muted); letter-spacing: 1px; }
+
+    /* ── RELATED SECTION ─────────────────────────────────── */
+    .related { padding: 48px 32px; background: var(--sand); }
+    .section-title { font-family: var(--font-serif); font-size: 28px; font-weight: 700; color: var(--dark2); margin-bottom: 4px; }
+    .section-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); margin-bottom: 24px; display: block; }
+    .related-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; }
+    .related-card { background: var(--gold); border-radius: 4px; overflow: hidden; cursor: pointer; transition: transform 0.22s; }
+    .related-card:hover { transform: translateY(-3px); }
+    .related-img { height: 150px; display: flex; align-items: center; justify-content: center; background: var(--sand); overflow: hidden; }
+    .related-img img { width: 100%; height: 100%; object-fit: cover; }
+    .related-info { padding: 10px 12px; }
+    .related-brand { font-size: 8px; letter-spacing: 2px; text-transform: uppercase; color: #7a5c3a; margin-bottom: 2px; }
+    .related-name { font-family: var(--font-serif); font-size: 14px; color: var(--dark2); font-weight: 600; }
+    .related-price { font-size: 12px; color: var(--tan); font-weight: 500; margin-top: 4px; }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    .footer { background: var(--dark2); padding: 40px 32px 24px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+    .footer-logo { font-family: var(--font-serif); font-size: 20px; color: var(--gold); letter-spacing: 3px; margin-bottom: 8px; }
+    .footer-tagline { font-size: 11px; color: rgba(184,147,106,0.65); line-height: 1.7; }
+    .footer-contact { font-size: 11px; color: rgba(203,173,141,0.55); margin-top: 10px; line-height: 1.8; }
+    .footer-col h4 { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+    .footer-col a { display: block; font-size: 11px; color: rgba(184,147,106,0.6); margin-bottom: 8px; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--gold); }
+    .footer-bottom { border-top: 1px solid rgba(184,147,106,0.15); padding-top: 16px; font-size: 10px; color: rgba(184,147,106,0.35); text-align: center; }
+    .footer-social { display: flex; gap: 10px; margin-top: 12px; }
+    .footer-social a {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1px solid rgba(184,147,106,0.3);
+      color: var(--gold); transition: all 0.2s;
+    }
+    .footer-social a:hover { background: rgba(184,147,106,0.15); border-color: var(--gold); }
+    .footer-qr { margin-top: 14px; }
+    .footer-qr-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(184,147,106,0.4); margin-bottom: 8px; }
+
+    /* ── MOBILE ─────────────────────────────────────────── */
+    @media (max-width: 700px) {
+      .navbar { padding: 10px 16px; }
+      .nav-logo { font-size: 18px; }
+      .nav-cta { display: none; }
+      .breadcrumb { padding: 10px 16px; }
+      .product-wrap { grid-template-columns: 1fr; }
+      .info-panel { padding: 24px 16px; }
+      .product-name { font-size: 32px; }
+      .price-kwd { font-size: 30px; }
+      .related { padding: 32px 16px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+      .footer { padding: 32px 16px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- SIDE DRAWER -->
+<aside class="side-drawer" id="sideDrawer">
+  <div class="drawer-head">
+    <div class="drawer-logo">UrbanCloset</div>
+    <div class="drawer-close" onclick="closeDrawer()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <nav class="drawer-nav">
+    <a href="index.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
+    <a href="index.html#new-arrivals"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>New Arrivals <span class="drawer-badge" id="newCount">4</span></a>
+    <a href="#"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>Shop All</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section-label">Collections</div>
+    <a href="shop.html?series=Series+1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 1</a>
+    <a href="shop.html?series=Series+2"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 2</a>
+    <a href="shop.html?series=Series+3"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 3</a>
+    <a href="shop.html?series=Series+4"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 4</a>
+    <a href="shop.html?series=Series+5"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 5</a>
+    <a href="shop.html?series=Series+6"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 6</a>
+    <a href="shop.html?series=Series+7"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 7</a>
+    <a href="shop.html?series=Series+8"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 8</a>
+    <a href="shop.html?series=Series+9"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 9</a>
+    <a href="shop.html?series=Series+10"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 10</a>
+    <div class="drawer-divider"></div>
+
+    <a href="checkout.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Cart <span class="drawer-badge" id="cartDrawerCount">0</span></a>
+    <a href="#"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account</a>
+    <div class="drawer-divider"></div>
+    <a href="index.html#how-to-order"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>How to Order</a>
+    <a href="index.html#authenticity"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Authenticity</a>
+    <a href="index.html#consignment"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 00-4 0v2M8 7V5a2 2 0 00-4 0v2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>Consignment</a>
+    <a href="https://wa.me/96590910123" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>Contact Us</a>
+  </nav>
+  <div class="drawer-foot">
+    <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Kuwait, Salmiya</div>
+    <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>+965 9091 0123</div>
+    <div style="display:flex;align-items:flex-start;gap:7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>admin@urbancloset.kw</div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<div class="topbar">New Arrivals &nbsp;·&nbsp; Collections &nbsp;·&nbsp; Authenticity &nbsp;·&nbsp; Consign &nbsp;·&nbsp; How to Order &nbsp;·&nbsp; Contact</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-ham" onclick="openDrawer()">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+      <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+    </svg>
+  </div>
+  <a href="index.html" class="nav-logo">UrbanCloset</a>
+  <div class="nav-actions">
+    <div class="nav-icons">
+      <span>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      </span>
+      <span onclick="window.location.href='checkout.html'" style="cursor:pointer;position:relative;display:inline-flex;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+        <span class="cart-count" id="cartBadge">0</span>
+      </span>
+    </div>
+    <div class="nav-cta" onclick="window.open('https://wa.me/96590910123','_blank')">Get in Touch</div>
+  </div>
+</nav>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="index.html">Home</a>
+  <span>›</span>
+  <a href="#">Shop All</a>
+  <span>›</span>
+  <span id="breadcrumbName">Loading…</span>
+</div>
+
+<!-- PRODUCT MAIN -->
+<div class="product-wrap" id="productWrap">
+
+  <!-- IMAGE PANEL -->
+  <div class="img-panel">
+    <div class="main-img-wrap" id="mainImgWrap" onclick="openLightbox(currentImgIndex)">
+      <!-- Image layers for fade transition -->
+      <div class="img-layer fade-in" id="imgLayerA">
+        <div class="img-placeholder" id="imgPlaceholder">
+          <svg viewBox="0 0 100 90" fill="none">
+            <rect x="8" y="28" width="84" height="55" rx="5" fill="#A48374" opacity="0.4"/>
+            <path d="M30 28 C30 12 70 12 70 28" stroke="#A48374" stroke-width="4" fill="none" opacity="0.5"/>
+            <rect x="36" y="42" width="28" height="5" rx="2" fill="#CBAD8D" opacity="0.6"/>
+          </svg>
+        </div>
+      </div>
+      <div class="img-layer" id="imgLayerB" style="opacity:0;"></div>
+
+      <!-- Badges -->
+      <div class="auth-badge">
+        <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Authenticated
+      </div>
+      <div class="condition-badge" id="condBadge">Excellent</div>
+
+      <!-- Expand hint -->
+      <div class="expand-hint" onclick="event.stopPropagation();openLightbox(currentImgIndex)">
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+        View Full
+      </div>
+
+      <!-- Zoom result panel (desktop) -->
+      <div class="zoom-result" id="zoomResult"></div>
+    </div>
+    <div class="thumb-strip" id="thumbStrip"></div>
+  </div>
+
+  <!-- LIGHTBOX MODAL -->
+  <div class="lightbox-overlay" id="lightboxOverlay">
+    <div class="lightbox-inner">
+      <button class="lightbox-close" id="lightboxClose" onclick="closeLightbox()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <button class="lightbox-arrow prev" id="lightboxPrev" onclick="lightboxNav(-1)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div class="lightbox-img-wrap" id="lightboxImgWrap">
+        <img id="lightboxImg" src="" alt="" draggable="false"/>
+      </div>
+      <button class="lightbox-arrow next" id="lightboxNext" onclick="lightboxNav(1)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="lightbox-dots" id="lightboxDots"></div>
+      <div class="lightbox-counter" id="lightboxCounter">1 / 1</div>
+    </div>
+  </div>
+
+
+  <!-- INFO PANEL -->
+  <div class="info-panel">
+    <div class="product-series" id="productSeries">Series 1</div>
+    <div class="product-brand" id="productBrand">Loading…</div>
+    <h1 class="product-name" id="productName">…</h1>
+
+    <!-- Condition star rating -->
+    <div class="condition-rating-row">
+      <div class="condition-stars" id="conditionStars"></div>
+      <div class="condition-score" id="conditionScore"></div>
+    </div>
+
+    <div class="price-row">
+      <div class="price-kwd" id="priceKWD">KD 0.000</div>
+      <div class="price-usd" id="priceUSD"></div>
+    </div>
+
+    <div class="stock-badge" id="stockBadge" style="display:none;"></div>
+
+    <div class="details-grid" id="detailsGrid">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="divider"></div>
+    <p class="desc-text" id="descText">Loading product details…</p>
+
+    <!-- Condition Breakdown + Inclusions (merged) -->
+    <details class="condition-breakdown" id="conditionBreakdown">
+      <summary class="condition-breakdown-title">
+        Condition &amp; Inclusions
+        <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div id="conditionRows"><!-- filled by JS --></div>
+      <div class="inclusions-block">
+        <div class="inclusions-title">Inclusions</div>
+        <div class="inclusions-list" id="inclusionsList"><!-- filled by JS --></div>
+      </div>
+    </details>
+
+    <!-- Authenticity Block -->
+    <details class="auth-block">
+      <summary class="auth-block-title">
+        <span style="display:flex;align-items:center;gap:7px;">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          Authenticity Guarantee
+        </span>
+        <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <p class="auth-block-text">Carefully reviewed and sold as an authentic preloved luxury piece unless otherwise stated in the product listing.</p>
+      <div class="auth-tpa-note" style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(184,147,106,0.12);">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Third-party authentication available on request ($20–30 USD). Digital certificate issued on success. Ask via WhatsApp.
+      </div>
+    </details>
+
+    <!-- Delivery Info -->
+    <details class="delivery-block">
+      <summary class="delivery-block-title">
+        Shipping &amp; Delivery
+        <svg class="chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </summary>
+      <div class="delivery-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        <div>
+          <div class="delivery-row-label">Kuwait Delivery</div>
+          <div class="delivery-row-sub">Same-day or next-day delivery within Kuwait. Delivered directly to your door.</div>
+        </div>
+      </div>
+      <div class="delivery-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>
+        <div>
+          <div class="delivery-row-label">International Shipping</div>
+          <div class="delivery-row-sub">We ship to UAE, Saudi Arabia, Bahrain, Qatar, and select international destinations. Rates vary by location.</div>
+        </div>
+      </div>
+      <div class="delivery-row">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        <div>
+          <div class="delivery-row-label">Delivery Updates</div>
+          <div class="delivery-row-sub">You'll receive tracking updates via WhatsApp once your order is dispatched.</div>
+        </div>
+      </div>
+    </details>
+
+    <!-- CTA Buttons -->
+    <div class="cta-group">
+
+      <!-- Add to Cart — outlined -->
+      <button class="btn-cta btn-add-cart" id="btnAddCart" onclick="addToCart()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+          <path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/>
+        </svg>
+        Add to Cart
+      </button>
+
+      <!-- Buy Now — primary CTA -->
+      <button class="btn-cta btn-buy-now" id="btnBuyNow" onclick="buyNow()">
+        Buy Now
+      </button>
+
+      <!-- WhatsApp Inquiry -->
+      <button class="btn-cta btn-whatsapp-new" onclick="contactWhatsApp()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/>
+        </svg>
+        WhatsApp Inquiry
+      </button>
+
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Trust Row -->
+    <div class="trust-row">
+      <div class="trust-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+        Authenticated
+      </div>
+      <div class="trust-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"/><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+        Ships to Gulf
+      </div>
+      <div class="trust-item">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        Secure Checkout
+      </div>
+      <div class="trust-item" style="margin-left:auto;" id="refRowInline">Ref #<span id="refNum">001</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- RELATED PRODUCTS -->
+<section class="related">
+  <h2 class="section-title">You May Also Like</h2>
+  <span class="section-sub">More from the collection</span>
+  <div class="related-grid" id="relatedGrid"></div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">UrbanCloset</div>
+      <p class="footer-tagline">Authentic preloved designer bags, curated for the bold &amp; intentional.</p>
+      <div class="footer-contact">
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;opacity:.6"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          Kuwait, Salmiya
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:5px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;margin-top:1px;opacity:.6"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>
+          <a href="https://wa.me/96590910123" target="_blank" style="color:inherit;text-decoration:none;">+965 9091 0123</a>
+        </div>
+        <div style="display:flex;align-items:flex-start;gap:8px;">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;opacity:.6"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          <a href="mailto:admin@urbancloset.kw" style="color:inherit;text-decoration:none;">admin@urbancloset.kw</a>
+        </div>
+      </div>
+      <div class="footer-social">
+        <a href="https://wa.me/96590910123" target="_blank" title="WhatsApp">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2zm.001 18c-1.66 0-3.21-.507-4.487-1.375l-.322-.19-3.343.877.893-3.258-.209-.336A7.959 7.959 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>
+        </a>
+        <a href="https://instagram.com/urbancloset" target="_blank" title="Instagram">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        </a>
+        <a href="mailto:admin@urbancloset.kw" title="Email">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+        </a>
+      </div>
+      <div class="footer-qr">
+        <div class="footer-qr-label">Scan to WhatsApp us</div>
+        <svg width="80" height="80" viewBox="0 0 29 29" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+          <rect width="29" height="29" fill="rgba(184,147,106,0.08)" rx="3"/>
+          <rect x="2" y="2" width="7" height="7" fill="none" stroke="rgba(184,147,106,0.7)" stroke-width="1"/>
+          <rect x="3.5" y="3.5" width="4" height="4" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="2" width="7" height="7" fill="none" stroke="rgba(184,147,106,0.7)" stroke-width="1"/>
+          <rect x="21.5" y="3.5" width="4" height="4" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="20" width="7" height="7" fill="none" stroke="rgba(184,147,106,0.7)" stroke-width="1"/>
+          <rect x="3.5" y="21.5" width="4" height="4" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="2" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="2" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="2" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="4" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="14" y="4" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="4" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="6" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="13" y="6" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="8" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="15" y="8" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="6" y="10" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="10" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="10" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="21" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="10" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="12" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="5" y="12" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="12" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="14" y="12" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="12" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="21" y="12" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="24" y="12" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="14" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="7" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="11" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="13" y="14" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="14" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="24" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="26" y="14" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="16" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="4" y="16" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="8" y="16" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="16" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="15" y="16" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="19" y="16" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="22" y="16" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="2" y="18" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="6" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="18" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="18" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="23" y="18" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="20" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="14" y="20" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="20" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="20" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="23" y="20" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="20" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="22" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="13" y="22" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="17" y="22" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="20" y="22" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="22" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="24" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="15" y="24" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="18" y="24" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="22" y="24" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="24" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="10" y="26" width="1" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="12" y="26" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="16" y="26" width="3" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="21" y="26" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+          <rect x="25" y="26" width="2" height="1" fill="rgba(184,147,106,0.7)"/>
+        </svg>
+        <div style="font-size:9px;color:rgba(184,147,106,0.3);margin-top:4px;">wa.me/96590910123</div>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a href="index.html#new-arrivals">New Arrivals</a>
+      <a href="#">Shop All</a>
+      <a href="#">Series 1</a>
+      <a href="#">Series 2</a>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <a href="index.html#how-to-order">How to Order</a>
+      <a href="index.html#authenticity">Authenticity</a>
+      <a href="index.html#consignment">Consignment</a>
+      <a href="https://wa.me/96590910123" target="_blank">WhatsApp Us</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="tel:+96590910123">+965 9091 0123</a>
+      <a href="mailto:admin@urbancloset.kw">admin@urbancloset.kw</a>
+      <a href="https://instagram.com/urbancloset" target="_blank" style="display:flex;align-items:center;gap:6px;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+        @urbancloset
+      </a>
+      <a href="https://wa.me/96590910123" target="_blank" style="display:flex;align-items:center;gap:6px;">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>
+        WhatsApp Us
+      </a>
+      <a href="#">Kuwait Delivery</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 UrbanCloset. All rights reserved. Independently curated luxury preloved bags.</div>
+</footer>
+
+<!-- SCRIPTS -->
+<script>
+/* ── DRAWER ── */
+function openDrawer() {
+  document.getElementById('sideDrawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeDrawer() {
+  document.getElementById('sideDrawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+/* ── CART BADGE ── */
+function updateCartBadge() { Cart.updateBadge(); }
+Cart.updateBadge();
+
+/* ── STAR HELPERS (SVG) ── */
+function starsSVG(rating) {
+  var filled = Math.round(rating || 5);
+  var out = '';
+  for (var i = 1; i <= 5; i++) {
+    if (i <= filled) {
+      out += '<svg width="13" height="13" viewBox="0 0 24 24" fill="#8B5E4A" style="display:inline-block;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+    } else {
+      out += '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B5E4A" stroke-width="1.5" style="display:inline-block;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+    }
+  }
+  return out;
+}
+
+/* Condition score map */
+var conditionScores = {
+  'Excellent': 5.0,
+  'Very Good': 4.5,
+  'Good': 4.0,
+  'Fair': 3.0
+};
+
+var conditionAspects = {
+  'Excellent': [
+    { label: 'Exterior', pct: 95 },
+    { label: 'Interior', pct: 95 },
+    { label: 'Hardware', pct: 97 },
+    { label: 'Stitching', pct: 98 }
+  ],
+  'Very Good': [
+    { label: 'Exterior', pct: 85 },
+    { label: 'Interior', pct: 88 },
+    { label: 'Hardware', pct: 90 },
+    { label: 'Stitching', pct: 92 }
+  ],
+  'Good': [
+    { label: 'Exterior', pct: 72 },
+    { label: 'Interior', pct: 78 },
+    { label: 'Hardware', pct: 80 },
+    { label: 'Stitching', pct: 85 }
+  ],
+  'Fair': [
+    { label: 'Exterior', pct: 55 },
+    { label: 'Interior', pct: 65 },
+    { label: 'Hardware', pct: 70 },
+    { label: 'Stitching', pct: 72 }
+  ]
+};
+
+/* Inclusions map */
+var inclusionsMap = {
+  'Excellent': [
+    { label: 'Dust Bag', present: true },
+    { label: 'Authenticity Card', present: true },
+    { label: 'Original Box', present: true },
+    { label: 'Care Booklet', present: true }
+  ],
+  'Very Good': [
+    { label: 'Dust Bag', present: true },
+    { label: 'Authenticity Card', present: true },
+    { label: 'Original Box', present: false },
+    { label: 'Care Booklet', present: false }
+  ],
+  'Good': [
+    { label: 'Dust Bag', present: true },
+    { label: 'Authenticity Card', present: false },
+    { label: 'Original Box', present: false },
+    { label: 'Care Booklet', present: false }
+  ],
+  'Fair': [
+    { label: 'Dust Bag', present: false },
+    { label: 'Authenticity Card', present: false },
+    { label: 'Original Box', present: false },
+    { label: 'Care Booklet', present: false }
+  ]
+};
+
+var checkSVG = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5c8a5a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+var crossSVG = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#9a8a7a" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+
+/* ── GET PRODUCT ID FROM URL ── */
+function getProductId() {
+  var params = new URLSearchParams(window.location.search);
+  return params.get('id');
+}
+
+/* ── RENDER PRODUCT ── */
+var currentProduct = null;
+
+function renderProduct(p) {
+  currentProduct = p;
+  document.title = (p.name || 'Product') + ' — UrbanCloset';
+  document.getElementById('breadcrumbName').textContent = (p.brand || '') + ' ' + (p.name || '');
+  document.getElementById('productSeries').textContent = p.series || 'Series 1';
+  document.getElementById('productBrand').textContent = (p.brand || '').toUpperCase();
+  document.getElementById('productName').textContent = p.name || '';
+  document.getElementById('condBadge').textContent = p.condition || 'Excellent';
+  document.getElementById('refNum').textContent = String(p.id).padStart(3, '0');
+
+  // Stars
+  var score = conditionScores[p.condition] || p.rating || 5;
+  var starsEl = document.getElementById('conditionStars');
+  starsEl.innerHTML = starsSVG(Math.round(score));
+  document.getElementById('conditionScore').textContent = score.toFixed(1) + ' / 5';
+
+  // Price
+  var kwd = parseFloat(p.price || 0);
+  document.getElementById('priceKWD').textContent = Currency.format(kwd);
+  document.getElementById('priceUSD').textContent = Currency.get() === 'KWD' ? '≈ $' + (kwd * Currency.RATE).toFixed(0) + ' USD' : '';
+
+  // Gallery images
+  var imgs = [];
+  if (Array.isArray(p.images) && p.images.length) {
+    imgs = p.images.filter(Boolean);
+  } else if (p.image_url) {
+    imgs = [p.image_url];
+  }
+  if (imgs.length === 1) imgs = [imgs[0], imgs[0], imgs[0]];
+  var uniqueCount = new Set(imgs).size;
+  initGallery(imgs, p.name || '', uniqueCount <= 1);
+
+  // Details grid (extended)
+  var details = [
+    { label: 'Brand',      value: p.brand || '—' },
+    { label: 'Category',   value: p.category || 'Handbag' },
+    { label: 'Condition',  value: p.condition || '—' },
+    { label: 'Series',     value: p.series || 'Series 1' },
+    { label: 'Colour',     value: p.color || '—' },
+    { label: 'Material',   value: p.material || '—' },
+    { label: 'Size',       value: p.size || '—' },
+    { label: 'Stock',      value: (p.stock != null ? p.stock : '—') },
+    { label: 'Ref No.',    value: '#' + String(p.id).padStart(3, '0') }
+  ];
+  document.getElementById('detailsGrid').innerHTML = details.map(function(d) {
+    return '<div class="detail-item">' +
+      '<div class="detail-label">' + d.label + '</div>' +
+      '<div class="detail-value">' + d.value + '</div>' +
+    '</div>';
+  }).join('');
+
+  // Description
+  document.getElementById('descText').textContent = p.description ||
+    'A beautifully curated preloved ' + (p.brand || 'designer') + ' ' + (p.name || 'bag') +
+    '. Carefully inspected and authenticated by our team. Comes with original packaging where available.';
+
+  // Condition breakdown rows
+  var aspects = conditionAspects[p.condition] || conditionAspects['Excellent'];
+  document.getElementById('conditionRows').innerHTML = aspects.map(function(a) {
+    return '<div class="condition-row">' +
+      '<span class="condition-aspect">' + a.label + '</span>' +
+      '<div class="condition-bar-wrap"><div class="condition-bar" style="width:' + a.pct + '%"></div></div>' +
+    '</div>';
+  }).join('');
+
+  // Inclusions
+  var inclusions = p.inclusions || inclusionsMap[p.condition] || inclusionsMap['Excellent'];
+  document.getElementById('inclusionsList').innerHTML = inclusions.map(function(inc) {
+    var icon = inc.present ? checkSVG : crossSVG;
+    return '<span class="inclusion-tag' + (inc.present ? '' : ' missing') + '">' +
+      icon + inc.label + '</span>';
+  }).join('');
+
+  // Stock validation
+  var stock = parseInt(p.stock, 10);
+  if (isNaN(stock)) stock = 1; // unknown stock treated as available
+  var badge   = document.getElementById('stockBadge');
+  var btnCart = document.getElementById('btnAddCart');
+  var btnBuy  = document.getElementById('btnBuyNow');
+
+  if (stock <= 0) {
+    badge.textContent = 'Out of Stock';
+    badge.className = 'stock-badge out';
+    badge.style.display = 'inline-block';
+    btnCart.disabled = true;
+    btnBuy.disabled  = true;
+  } else if (stock <= 2) {
+    badge.textContent = 'Only ' + stock + ' left';
+    badge.className = 'stock-badge low';
+    badge.style.display = 'inline-block';
+    btnCart.disabled = false;
+    btnBuy.disabled  = false;
+  } else {
+    badge.style.display = 'none';
+    btnCart.disabled = false;
+    btnBuy.disabled  = false;
+  }
+}
+
+/* ── ADD TO CART ── */
+/* ── TOAST ── */
+function showToast(msg, icon) {
+  var container = document.getElementById('toastContainer');
+  if (!container) {
+    container = document.createElement('div');
+    container.className = 'toast-container';
+    container.id = 'toastContainer';
+    document.body.appendChild(container);
+  }
+  var toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerHTML =
+    '<div class="toast-icon">' +
+      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#5c8a5a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+    '</div>' + (icon || '') + msg;
+  container.appendChild(toast);
+  requestAnimationFrame(function() {
+    requestAnimationFrame(function() { toast.classList.add('show'); });
+  });
+  setTimeout(function() {
+    toast.classList.remove('show');
+    setTimeout(function() { toast.remove(); }, 350);
+  }, 3000);
+}
+
+/* ── ADD TO CART ── */
+async function addToCart() {
+  if (!currentProduct) return;
+  if (parseInt(currentProduct.stock, 10) === 0) {
+    showToast('This item is out of stock');
+    return;
+  }
+  var btn = document.getElementById('btnAddCart');
+  btn.disabled = true;
+  try {
+    if (typeof Cart !== 'undefined') await Cart.add(currentProduct);
+  } catch(e) {}
+  btn.classList.add('added');
+  btn.innerHTML =
+    '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+    'Added to Cart';
+  showToast('Added to Cart Successfully');
+  setTimeout(function() {
+    btn.classList.remove('added');
+    btn.disabled = false;
+    btn.innerHTML =
+      '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>' +
+      'Add to Cart';
+  }, 2500);
+}
+
+/* ── BUY NOW ── */
+async function buyNow() {
+  if (!currentProduct) return;
+  if (parseInt(currentProduct.stock, 10) === 0) {
+    showToast('This item is out of stock');
+    return;
+  }
+  sessionStorage.setItem('uc_buynow', JSON.stringify(Object.assign({}, currentProduct, { qty: 1 })));
+  window.location.href = 'checkout.html?buynow=1';
+}
+
+/* ── WHATSAPP INQUIRY ── */
+function contactWhatsApp() {
+  if (!currentProduct) return;
+  var price = 'KD ' + parseFloat(currentProduct.price || 0).toFixed(3);
+  var msg =
+    'Hello Urban Closet,\n\n' +
+    'I am interested in this product:\n\n' +
+    'Product Name: ' + (currentProduct.brand || '') + ' ' + (currentProduct.name || '') + '\n' +
+    'Series: '       + (currentProduct.series || 'Series 1') + '\n' +
+    'Price: '        + price + '\n\n' +
+    'Could you provide more details?';
+  window.open('https://wa.me/96590910123?text=' + encodeURIComponent(msg), '_blank');
+}
+
+/* ── RELATED PRODUCTS ── */
+function renderRelated(products, currentId) {
+  var others = products.filter(function(p) { return p.id != currentId; }).slice(0, 4);
+  var bgColors = ['#b8967a', '#c4a882', '#a88868', '#d4b896'];
+  document.getElementById('relatedGrid').innerHTML = others.map(function(p, i) {
+    var bg = bgColors[i % bgColors.length];
+    var imgHtml = p.image_url
+      ? '<img src="' + p.image_url + '" alt="' + (p.name || '') + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;">'
+      : '<div style="width:100%;height:100%;background:' + bg + ';"></div>';
+    return '<div class="related-card" onclick="window.location.href=\'product.html?id=' + p.id + '\'">' +
+      '<div class="related-img">' + imgHtml + '</div>' +
+      '<div class="related-info">' +
+        '<div class="related-brand">' + (p.brand || '') + '</div>' +
+        '<div class="related-name">' + (p.name || '') + '</div>' +
+        '<div class="related-price">' + Currency.format(p.price || 0) + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+
+function normalizeProduct(p) {
+  if (!p.image_url) {
+    p.image_url = Array.isArray(p.images) ? (p.images[0] || null) : (p.images || null);
+  }
+  return p;
+}
+
+async function loadProduct() {
+  var id = getProductId();
+
+  var demoProducts = [
+    { id:1, brand:'Chanel',         name:'Classic Flap',   price:380, condition:'Excellent', rating:5, series:'Series 1', color:'Black',    material:'Lambskin',     size:'Medium',  category:'Shoulder Bag' },
+    { id:2, brand:'Louis Vuitton',  name:'Neverfull MM',   price:220, condition:'Very Good',  rating:4, series:'Series 1', color:'Monogram', material:'Canvas',        size:'MM',      category:'Tote' },
+    { id:3, brand:'Balenciaga',     name:'City Bag',       price:290, condition:'Excellent', rating:5, series:'Series 1', color:'Black',    material:'Leather',       size:'Classic', category:'Crossbody' },
+    { id:4, brand:'Christian Dior', name:'Lady Dior',      price:450, condition:'Very Good',  rating:4, series:'Series 1', color:'Nude',     material:'Leather',       size:'Medium',  category:'Shoulder Bag' },
+    { id:5, brand:'Gucci',          name:'Marmont',        price:310, condition:'Excellent', rating:5, series:'Series 2', color:'Beige',    material:'Matelassé',     size:'Small',   category:'Crossbody' },
+    { id:6, brand:'Prada',          name:'Saffiano Tote',  price:260, condition:'Good',       rating:4, series:'Series 2', color:'Black',    material:'Saffiano',      size:'Large',   category:'Tote' },
+    { id:7, brand:'Hermès',         name:'Evelyne PM',     price:820, condition:'Excellent', rating:5, series:'Series 2', color:'Tan',      material:'Clemence',      size:'PM',      category:'Crossbody' },
+    { id:8, brand:'Bottega Veneta', name:'Pouch',          price:480, condition:'Very Good',  rating:5, series:'Series 2', color:'Nude',     material:'Intrecciato',   size:'Large',   category:'Clutch' }
+  ];
+
+  try {
+    var res = await fetch(API_URL + '/products');
+    if (!res.ok) throw new Error();
+    var json = await res.json();
+    var list = (json && json.data) ? json.data : json;
+    var products = list.map(normalizeProduct);
+    var found = products.find(function(p) { return String(p.id) === String(id); });
+    if (found) { renderProduct(found); renderRelated(products, id); return; }
+    throw new Error('not found');
+  } catch(e) {
+    var found = demoProducts.find(function(p) { return String(p.id) === String(id); });
+    renderProduct(found || demoProducts[0]);
+    renderRelated(demoProducts, id || 1);
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   PREMIUM IMAGE GALLERY  —  Zoom · Thumbnails · Lightbox
+   ══════════════════════════════════════════════════ */
+
+var galleryImages   = [];
+var galleryAlt      = '';
+var currentImgIndex = 0;
+var isTransitioning = false;
+
+/* ── Layer references */
+var layerA, layerB, activeLayer, inactiveLayer;
+
+function initGallery(imgs, alt, hideThumbs) {
+  galleryImages = imgs.length ? imgs : [];
+  galleryAlt    = alt;
+  currentImgIndex = 0;
+
+  layerA = document.getElementById('imgLayerA');
+  layerB = document.getElementById('imgLayerB');
+  activeLayer   = layerA;
+  inactiveLayer = layerB;
+
+  var thumbStrip = document.getElementById('thumbStrip');
+  if (thumbStrip) thumbStrip.style.display = hideThumbs ? 'none' : '';
+
+  var mainWrap = document.getElementById('mainImgWrap');
+
+  /* Clear placeholder on first real image */
+  if (imgs.length) {
+    var ph = document.getElementById('imgPlaceholder');
+    if (ph) ph.style.display = 'none';
+    setLayerImg(layerA, imgs[0], alt);
+    layerA.style.opacity = '1';
+    layerB.style.opacity = '0';
+    if (mainWrap) mainWrap.classList.remove('no-image');
+  } else {
+    if (mainWrap) mainWrap.classList.add('no-image');
+  }
+
+  buildThumbs();
+  initZoom();
+  initLightboxSwipe();
+
+  /* Keyboard navigation */
+  document.addEventListener('keydown', onKeyDown);
+}
+
+function setLayerImg(layer, src, alt) {
+  layer.innerHTML = '';
+  var img = document.createElement('img');
+  img.src = src; img.alt = alt;
+  img.style.cssText = 'width:100%;height:100%;object-fit:cover;';
+  img.onerror = function() { layer.style.display = 'none'; };
+  layer.appendChild(img);
+}
+
+/* ── Switch main image with 300ms cross-fade */
+function switchImage(idx) {
+  if (isTransitioning || idx === currentImgIndex || !galleryImages[idx]) return;
+  isTransitioning = true;
+
+  var src = galleryImages[idx];
+
+  /* Pre-load then cross-fade */
+  var preload = new Image();
+  preload.onload = function() {
+    setLayerImg(inactiveLayer, src, galleryAlt);
+    inactiveLayer.style.transition = 'opacity 300ms ease';
+    inactiveLayer.style.opacity = '1';
+    activeLayer.style.transition  = 'opacity 300ms ease';
+    activeLayer.style.opacity     = '0';
+
+    setTimeout(function() {
+      var tmp   = activeLayer;
+      activeLayer   = inactiveLayer;
+      inactiveLayer = tmp;
+      currentImgIndex = idx;
+      isTransitioning = false;
+      updateThumbHighlight();
+      updateZoomSrc();
+    }, 310);
+  };
+  preload.onerror = function() { isTransitioning = false; };
+  preload.src = src;
+}
+
+/* ── Thumbnail strip */
+function buildThumbs() {
+  var strip = document.getElementById('thumbStrip');
+  strip.innerHTML = '';
+  galleryImages.forEach(function(src, i) {
+    var div = document.createElement('div');
+    div.className = 'thumb' + (i === 0 ? ' active' : '');
+    div.dataset.idx = i;
+    div.onclick = function() { switchImage(i); };
+    var img = document.createElement('img');
+    img.src = src; img.alt = galleryAlt + ' ' + (i + 1);
+    img.loading = 'lazy';
+    div.appendChild(img);
+    strip.appendChild(div);
+  });
+}
+
+function updateThumbHighlight() {
+  var thumbs = document.querySelectorAll('.thumb');
+  thumbs.forEach(function(t, i) {
+    t.classList.toggle('active', i === currentImgIndex);
+  });
+}
+
+/* ── Desktop hover zoom */
+var zoomActive = false;
+function initZoom() {
+  var wrap   = document.getElementById('mainImgWrap');
+  var result = document.getElementById('zoomResult');
+  if (!wrap || !result) return;
+
+  wrap.addEventListener('mousemove', function(e) {
+    if (!galleryImages.length || window.innerWidth < 900) return;
+    var rect = wrap.getBoundingClientRect();
+    var xPct = (e.clientX - rect.left)  / rect.width;
+    var yPct = (e.clientY - rect.top)   / rect.height;
+    var bgX  = (xPct * 100).toFixed(2) + '%';
+    var bgY  = (yPct * 100).toFixed(2) + '%';
+    result.style.backgroundPosition = bgX + ' ' + bgY;
+    if (!zoomActive) {
+      result.classList.add('visible');
+      zoomActive = true;
+    }
+  });
+  wrap.addEventListener('mouseleave', function() {
+    result.classList.remove('visible');
+    zoomActive = false;
+  });
+}
+
+function updateZoomSrc() {
+  var result = document.getElementById('zoomResult');
+  if (result && galleryImages[currentImgIndex]) {
+    result.style.backgroundImage = 'url(' + galleryImages[currentImgIndex] + ')';
+  }
+}
+
+/* ── Lightbox */
+var lightboxIndex = 0;
+
+function openLightbox(idx) {
+  if (!galleryImages.length) return;
+  lightboxIndex = idx || 0;
+  var overlay = document.getElementById('lightboxOverlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  renderLightboxFrame(lightboxIndex, null);
+  buildLightboxDots();
+}
+
+function closeLightbox() {
+  document.getElementById('lightboxOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function renderLightboxFrame(idx, direction) {
+  var img = document.getElementById('lightboxImg');
+  if (direction) {
+    img.classList.add(direction === 'left' ? 'swipe-left' : 'swipe-right');
+    setTimeout(function() {
+      img.classList.remove('swipe-left', 'swipe-right');
+      img.src = galleryImages[idx] || '';
+      img.style.opacity = '1'; img.style.transform = 'none';
+    }, 300);
+  } else {
+    img.src = galleryImages[idx] || '';
+  }
+  lightboxIndex = idx;
+  document.getElementById('lightboxCounter').textContent = (idx + 1) + ' / ' + galleryImages.length;
+  updateLightboxDots();
+  /* show/hide arrows */
+  document.getElementById('lightboxPrev').style.visibility = idx === 0 ? 'hidden' : '';
+  document.getElementById('lightboxNext').style.visibility = idx === galleryImages.length - 1 ? 'hidden' : '';
+}
+
+function lightboxNav(dir) {
+  var next = lightboxIndex + dir;
+  if (next < 0 || next >= galleryImages.length) return;
+  renderLightboxFrame(next, dir > 0 ? 'left' : 'right');
+}
+
+function buildLightboxDots() {
+  var dots = document.getElementById('lightboxDots');
+  dots.innerHTML = '';
+  galleryImages.forEach(function(_, i) {
+    var d = document.createElement('div');
+    d.className = 'lightbox-dot' + (i === lightboxIndex ? ' active' : '');
+    d.onclick = function() { renderLightboxFrame(i, i > lightboxIndex ? 'left' : 'right'); };
+    dots.appendChild(d);
+  });
+}
+
+function updateLightboxDots() {
+  var dots = document.querySelectorAll('.lightbox-dot');
+  dots.forEach(function(d, i) { d.classList.toggle('active', i === lightboxIndex); });
+}
+
+/* ── Touch/swipe for lightbox */
+function initLightboxSwipe() {
+  var wrap = document.getElementById('lightboxImgWrap');
+  if (!wrap) return;
+  var startX = 0, startY = 0;
+  wrap.addEventListener('touchstart', function(e) {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  }, { passive: true });
+  wrap.addEventListener('touchend', function(e) {
+    var dx = e.changedTouches[0].clientX - startX;
+    var dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 40) {
+      lightboxNav(dx < 0 ? 1 : -1);
+    }
+  }, { passive: true });
+}
+
+/* ── Close lightbox on overlay click */
+document.getElementById('lightboxOverlay').addEventListener('click', function(e) {
+  if (e.target === this || e.target === document.getElementById('lightboxImg').parentElement) closeLightbox();
+});
+
+/* ── Keyboard */
+function onKeyDown(e) {
+  var overlay = document.getElementById('lightboxOverlay');
+  if (!overlay.classList.contains('open')) return;
+  if (e.key === 'Escape')       closeLightbox();
+  if (e.key === 'ArrowLeft')    lightboxNav(-1);
+  if (e.key === 'ArrowRight')   lightboxNav(1);
+}
+
+loadProduct();
+
+document.addEventListener('currencyChanged', function () {
+  if (currentProduct) renderProduct(currentProduct);
+});
+</script>
+
+</body>
+</html>

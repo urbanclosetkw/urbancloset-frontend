@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Shop All — UrbanCloset</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <script src="config.js"></script>
+  <script src="cart.js"></script>
+  <script src="currency.js"></script>
+
+  <style>
+    :root {
+      --dark:    #150d05;
+      --dark2:   #241a0f;
+      --gold:    #B8936A;
+      --tan:     #8B5E4A;
+      --sand:    #C4B09A;
+      --cream:   #F0E8DE;
+      --white:   #ffffff;
+      --muted:   #7a6a5a;
+      --font-serif: 'Cormorant Garamond', Georgia, serif;
+      --font-sans:  'DM Sans', sans-serif;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { background: var(--sand); font-family: var(--font-sans); color: var(--dark2); }
+    a { text-decoration: none; color: inherit; }
+    img { display: block; max-width: 100%; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      text-align: center;
+      padding: 7px 16px;
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 28px;
+      border-bottom: 1px solid var(--tan);
+      position: sticky;
+      top: 0;
+      z-index: 200;
+    }
+    .nav-ham { font-size: 22px; color: var(--dark2); cursor: pointer; padding: 2px 6px; border-radius: 3px; transition: background 0.2s; line-height: 1; }
+    .nav-ham:hover { background: rgba(44,35,24,0.12); }
+    .nav-logo { font-family: var(--font-serif); font-size: 22px; font-weight: 700; color: var(--dark2); letter-spacing: 3px; }
+    .nav-actions { display: flex; align-items: center; gap: 12px; }
+    .nav-pill { background: var(--dark2); color: var(--gold); font-size: 9px; padding: 4px 10px; border-radius: 20px; letter-spacing: 1px; }
+    .nav-icons { font-size: 16px; color: var(--dark2); display: flex; gap: 12px; cursor: pointer; }
+    .nav-cta { background: var(--dark2); color: var(--gold); font-size: 9px; padding: 6px 14px; border-radius: 2px; letter-spacing: 1.5px; text-transform: uppercase; transition: opacity 0.2s; }
+    .nav-cta:hover { opacity: 0.85; }
+    .cart-count { background: var(--tan); color: #fff; font-size: 9px; width: 17px; height: 17px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; position: relative; top: -6px; left: -8px; }
+
+    /* ── DRAWER ── */
+    .drawer-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 299; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+    .drawer-overlay.open { opacity: 1; pointer-events: all; }
+    .side-drawer { position: fixed; top: 0; left: 0; width: 260px; height: 100%; background: var(--dark); z-index: 300; transform: translateX(-100%); transition: transform 0.32s cubic-bezier(.4,0,.2,1); display: flex; flex-direction: column; }
+    .side-drawer.open { transform: translateX(0); }
+    .drawer-head { display: flex; align-items: center; justify-content: space-between; padding: 18px 18px 14px; border-bottom: 1px solid rgba(203,173,141,0.12); }
+    .drawer-logo { font-family: var(--font-serif); font-size: 16px; color: var(--gold); letter-spacing: 2px; }
+    .drawer-close { font-size: 20px; color: rgba(203,173,141,0.5); cursor: pointer; transition: color 0.2s; line-height: 1; }
+    .drawer-close:hover { color: var(--gold); }
+    .drawer-nav { flex: 1; overflow-y: auto; padding: 8px 0; }
+    .drawer-nav a { display: flex; align-items: center; gap: 10px; padding: 11px 18px; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: rgba(203,173,141,0.75); border-left: 2px solid transparent; transition: all 0.2s; }
+    .drawer-nav a svg { flex-shrink: 0; opacity: 0.7; }
+    .drawer-nav a:hover svg, .drawer-nav a.active svg { opacity: 1; }
+    .drawer-nav a:hover, .drawer-nav a.active { color: var(--gold); border-left-color: var(--tan); background: rgba(203,173,141,0.05); }
+    .drawer-divider { height: 1px; background: rgba(203,173,141,0.1); margin: 6px 18px; }
+    .drawer-section-label { padding: 8px 18px 3px; font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase; color: rgba(203,173,141,0.35); }
+    .drawer-badge { background: var(--tan); color: #fff; font-size: 8px; padding: 1px 6px; border-radius: 10px; margin-left: auto; }
+    .drawer-foot { padding: 14px 18px; border-top: 1px solid rgba(203,173,141,0.1); font-size: 10px; color: rgba(203,173,141,0.45); line-height: 1.7; }
+
+    /* ── PAGE HEADER ── */
+    .page-header {
+      background: var(--dark2);
+      padding: 48px 32px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .page-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 70% 50%, rgba(184,147,106,0.07) 0%, transparent 65%);
+    }
+    .page-header-inner { position: relative; z-index: 1; max-width: 560px; }
+    .page-eyebrow { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--tan); margin-bottom: 10px; }
+    .page-title { font-family: var(--font-serif); font-size: 52px; font-weight: 700; color: var(--gold); line-height: 1.0; margin-bottom: 10px; }
+    .page-title em { font-style: italic; color: #fff; }
+    .page-sub { font-size: 13px; color: rgba(184,147,106,0.65); line-height: 1.7; max-width: 380px; }
+    .page-count { font-size: 11px; color: rgba(184,147,106,0.4); margin-top: 12px; letter-spacing: 1px; }
+
+    /* ── MARQUEE ── */
+    .marquee-bar { background: var(--tan); color: #fff; font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; padding: 9px; text-align: center; overflow: hidden; }
+    .marquee-inner { display: inline-block; white-space: nowrap; animation: marquee 22s linear infinite; }
+    @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── SHOP LAYOUT ── */
+    .shop-wrap { display: flex; gap: 0; align-items: flex-start; }
+
+    /* ── FILTER SIDEBAR ── */
+    .filter-sidebar {
+      width: 220px;
+      flex-shrink: 0;
+      background: var(--cream);
+      border-right: 1px solid rgba(164,131,116,0.15);
+      min-height: calc(100vh - 80px);
+      padding: 24px 0;
+      position: sticky;
+      top: 52px;
+      align-self: flex-start;
+    }
+    .filter-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px 16px;
+      border-bottom: 1px solid rgba(164,131,116,0.12);
+      margin-bottom: 4px;
+    }
+    .filter-title { font-size: 9px; letter-spacing: 3px; text-transform: uppercase; color: var(--muted); }
+    .filter-clear { font-size: 9px; letter-spacing: 1px; text-transform: uppercase; color: var(--tan); cursor: pointer; transition: opacity 0.2s; }
+    .filter-clear:hover { opacity: 0.7; }
+    .filter-group { padding: 16px 20px; border-bottom: 1px solid rgba(164,131,116,0.1); }
+    .filter-group-title { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--dark2); font-weight: 500; margin-bottom: 12px; }
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 9px;
+      cursor: pointer;
+    }
+    .filter-option:last-child { margin-bottom: 0; }
+    .filter-check {
+      width: 15px;
+      height: 15px;
+      border: 1.5px solid rgba(164,131,116,0.4);
+      border-radius: 2px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+    }
+    .filter-option.checked .filter-check {
+      background: var(--tan);
+      border-color: var(--tan);
+    }
+    .filter-option.checked .filter-check svg { display: block; }
+    .filter-check svg { display: none; }
+    .filter-label { font-size: 11px; color: var(--dark2); }
+    .filter-count { font-size: 9px; color: var(--muted); margin-left: auto; }
+
+    /* price range */
+    .price-inputs { display: flex; gap: 8px; align-items: center; }
+    .price-input {
+      flex: 1;
+      border: 1.5px solid rgba(164,131,116,0.2);
+      border-radius: 3px;
+      padding: 7px 10px;
+      font-size: 12px;
+      font-family: var(--font-sans);
+      color: var(--dark2);
+      background: #fff;
+      outline: none;
+      transition: border-color 0.2s;
+      width: 0;
+    }
+    .price-input:focus { border-color: var(--tan); }
+    .price-sep { font-size: 11px; color: var(--muted); flex-shrink: 0; }
+    .price-apply {
+      width: 100%;
+      margin-top: 10px;
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 9px;
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+    .price-apply:hover { background: var(--dark); }
+
+    /* ── PRODUCTS AREA ── */
+    .products-area { flex: 1; padding: 24px 28px; min-width: 0; }
+
+    /* sort + results bar */
+    .results-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 12px;
+    }
+    .results-count { font-size: 12px; color: var(--muted); }
+    .results-count strong { color: var(--dark2); font-weight: 500; }
+    .sort-row { display: flex; align-items: center; gap: 10px; }
+    .sort-label { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+    .sort-select {
+      border: 1.5px solid rgba(164,131,116,0.2);
+      border-radius: 3px;
+      padding: 7px 28px 7px 10px;
+      font-size: 12px;
+      font-family: var(--font-sans);
+      color: var(--dark2);
+      background: var(--cream);
+      outline: none;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238B5E4A' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 10px center;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .sort-select:focus { border-color: var(--tan); }
+
+    /* active filters */
+    .active-filters { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+    .active-filter-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(139,94,74,0.1);
+      border: 1px solid rgba(139,94,74,0.25);
+      color: var(--tan);
+      font-size: 10px;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .active-filter-tag:hover { background: rgba(139,94,74,0.18); }
+    .active-filter-tag svg { flex-shrink: 0; }
+
+    /* grid */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .product-card {
+      background: var(--gold);
+      border-radius: 4px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: transform 0.22s, box-shadow 0.22s;
+    }
+    .product-card:hover { transform: translateY(-4px); box-shadow: 0 12px 32px rgba(26,16,8,0.18); }
+    .product-img-wrap { aspect-ratio: 3/4; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .product-img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
+    .product-img-placeholder svg { width: 64px; opacity: 0.7; }
+    .product-condition-badge { position: absolute; top: 8px; left: 8px; background: rgba(21,13,5,0.72); color: var(--gold); font-size: 8px; letter-spacing: 1px; padding: 3px 8px; border-radius: 20px; }
+    .product-info { padding: 14px 12px 12px; }
+    .product-brand { font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase; color: #7a5c3a; margin-bottom: 3px; }
+    .product-name { font-family: var(--font-serif); font-size: 16px; color: var(--dark2); margin-bottom: 6px; font-weight: 600; }
+    .product-stars { margin-bottom: 6px; }
+    .product-footer { display: flex; justify-content: space-between; align-items: center; }
+    .product-price { font-size: 13px; font-weight: 500; color: var(--tan); }
+    .product-code { font-size: 9px; color: var(--muted); }
+
+    .grid-loading { grid-column: 1/-1; text-align: center; padding: 64px; color: var(--muted); font-size: 13px; letter-spacing: 1px; }
+    .grid-empty { grid-column: 1/-1; text-align: center; padding: 64px 32px; }
+    .grid-empty-title { font-family: var(--font-serif); font-size: 24px; color: var(--dark2); margin-bottom: 8px; }
+    .grid-empty-sub { font-size: 13px; color: var(--muted); }
+
+    /* load more */
+    .load-more-wrap { text-align: center; margin-top: 36px; }
+    .btn-load-more {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--dark2);
+      color: var(--gold);
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      padding: 13px 32px;
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+    .btn-load-more:hover { background: var(--dark); }
+    .btn-load-more:disabled { opacity: 0.4; cursor: default; }
+
+    /* ── FOOTER ── */
+    .footer { background: var(--dark2); padding: 40px 32px 24px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 24px; margin-bottom: 28px; }
+    .footer-logo { font-family: var(--font-serif); font-size: 20px; color: var(--gold); letter-spacing: 3px; margin-bottom: 8px; }
+    .footer-tagline { font-size: 11px; color: rgba(203,173,141,0.65); line-height: 1.7; }
+    .footer-contact { font-size: 11px; color: rgba(203,173,141,0.55); margin-top: 10px; line-height: 1.8; }
+    .footer-col h4 { font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+    .footer-col a { display: block; font-size: 11px; color: rgba(203,173,141,0.6); margin-bottom: 8px; transition: color 0.2s; }
+    .footer-col a:hover { color: var(--gold); }
+    .footer-social { display: flex; gap: 10px; margin-top: 12px; }
+    .footer-social a { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 50%; border: 1px solid rgba(184,147,106,0.3); color: var(--gold); transition: all 0.2s; }
+    .footer-social a:hover { background: rgba(184,147,106,0.15); border-color: var(--gold); }
+    .footer-bottom { border-top: 1px solid rgba(203,173,141,0.15); padding-top: 16px; font-size: 10px; color: rgba(203,173,141,0.35); text-align: center; }
+
+    /* ── SERIES SIDEBAR ENHANCEMENTS ── */
+    .series-nav-section {
+      padding: 14px 0 4px;
+    }
+    .series-nav-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px 10px;
+      border-bottom: 1px solid rgba(164,131,116,0.12);
+      margin-bottom: 2px;
+    }
+    .series-nav-title {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .series-nav-all {
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--tan);
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    .series-nav-all:hover { opacity: 0.65; }
+
+    .series-item {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      padding: 0 0 0 20px;
+      cursor: pointer;
+      position: relative;
+      transition: background 0.18s;
+      border-left: 2.5px solid transparent;
+      margin: 1px 0;
+    }
+    .series-item:hover {
+      background: rgba(139,94,74,0.06);
+    }
+    .series-item.active {
+      border-left-color: var(--tan);
+      background: rgba(139,94,74,0.08);
+    }
+    .series-item.active .series-item-name {
+      color: var(--tan);
+      font-weight: 500;
+    }
+    .series-item-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(164,131,116,0.3);
+      flex-shrink: 0;
+      margin-right: 10px;
+      transition: background 0.18s, transform 0.18s;
+    }
+    .series-item:hover .series-item-dot { background: var(--tan); transform: scale(1.3); }
+    .series-item.active .series-item-dot { background: var(--tan); transform: scale(1.4); }
+    .series-item-name {
+      font-size: 11.5px;
+      color: var(--dark2);
+      flex: 1;
+      padding: 9px 0;
+      transition: color 0.18s;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .series-item-count {
+      font-size: 9.5px;
+      color: rgba(122,106,90,0.55);
+      background: rgba(164,131,116,0.1);
+      border-radius: 10px;
+      padding: 2px 7px;
+      margin-right: 14px;
+      letter-spacing: 0.3px;
+      transition: background 0.18s, color 0.18s;
+      flex-shrink: 0;
+    }
+    .series-item:hover .series-item-count,
+    .series-item.active .series-item-count {
+      background: rgba(139,94,74,0.15);
+      color: var(--tan);
+    }
+
+    /* ── MOBILE SERIES TOGGLE ── */
+    .mobile-series-toggle {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      background: var(--cream);
+      border: 1.5px solid rgba(164,131,116,0.25);
+      border-radius: 4px;
+      padding: 9px 14px;
+      font-size: 10px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--dark2);
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .mobile-series-toggle:hover { border-color: var(--tan); background: #fff; }
+    .mobile-series-toggle svg { flex-shrink: 0; color: var(--tan); }
+    .mobile-series-toggle .toggle-label { flex: 1; }
+    .mobile-series-toggle .active-series-name {
+      color: var(--tan);
+      font-weight: 500;
+    }
+
+    /* Off-canvas series drawer for mobile */
+    .series-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 398;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    .series-overlay.open { opacity: 1; pointer-events: all; }
+    .series-offcanvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 280px;
+      height: 100%;
+      background: var(--cream);
+      z-index: 399;
+      transform: translateX(-100%);
+      transition: transform 0.32s cubic-bezier(.4,0,.2,1);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+    .series-offcanvas.open { transform: translateX(0); }
+    .series-offcanvas-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1px solid rgba(164,131,116,0.15);
+    }
+    .series-offcanvas-title {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .series-offcanvas-close {
+      font-size: 18px;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 2px;
+      transition: color 0.2s;
+      line-height: 1;
+    }
+    .series-offcanvas-close:hover { color: var(--tan); }
+    .series-offcanvas-items { flex: 1; padding: 8px 0; }
+    .series-offcanvas .series-item { padding-left: 20px; }
+
+    /* ── MOBILE ── */
+    @media (max-width: 640px) {
+      .navbar { padding: 10px 16px; }
+      .nav-logo { font-size: 18px; }
+      .nav-cta { display: none; }
+      .nav-pill { display: none; }
+      .page-header { padding: 32px 16px 28px; }
+      .page-title { font-size: 38px; }
+      .filter-sidebar { display: none; }
+      .products-area { padding: 16px; }
+      .product-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+      .results-bar { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; gap: 20px; }
+      .footer { padding: 32px 16px 20px; }
+      .mobile-series-toggle { display: flex; }
+      .series-overlay { display: block; }
+    }
+    @media (min-width: 641px) and (max-width: 1024px) {
+      .product-grid { grid-template-columns: repeat(2, 1fr); }
+      .filter-sidebar { width: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- SERIES MOBILE OFF-CANVAS OVERLAY -->
+<div class="series-overlay" id="seriesOverlay" onclick="closeSeriesDrawer()"></div>
+
+<!-- SERIES MOBILE OFF-CANVAS DRAWER -->
+<div class="series-offcanvas" id="seriesOffcanvas">
+  <div class="series-offcanvas-head">
+    <span class="series-offcanvas-title">Collections</span>
+    <span class="series-offcanvas-close" onclick="closeSeriesDrawer()">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </span>
+  </div>
+  <div class="series-offcanvas-items" id="seriesOffcanvasItems">
+    <!-- Populated by JS -->
+  </div>
+</div>
+
+<!-- SIDE DRAWER -->
+<aside class="side-drawer" id="sideDrawer">
+  <div class="drawer-head">
+    <div class="drawer-logo">UrbanCloset</div>
+    <div class="drawer-close" onclick="closeDrawer()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+  </div>
+  <nav class="drawer-nav">
+    <a href="index.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</a>
+    <a href="index.html#new-arrivals"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>New Arrivals</a>
+    <a href="shop.html" class="active"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>Shop All</a>
+    <div class="drawer-divider"></div>
+    <div class="drawer-section-label">Collections</div>
+    <a href="shop.html?series=Series+1"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 1</a>
+    <a href="shop.html?series=Series+2"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 2</a>
+    <a href="shop.html?series=Series+3"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 3</a>
+    <a href="shop.html?series=Series+4"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 4</a>
+    <a href="shop.html?series=Series+5"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 5</a>
+    <a href="shop.html?series=Series+6"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 6</a>
+    <a href="shop.html?series=Series+7"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 7</a>
+    <a href="shop.html?series=Series+8"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 8</a>
+    <a href="shop.html?series=Series+9"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 9</a>
+    <a href="shop.html?series=Series+10"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>Series 10</a>
+    <div class="drawer-divider"></div>
+
+    <a href="checkout.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Cart <span class="drawer-badge" id="cartDrawerCount">0</span></a>
+    <a href="#"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account</a>
+    <div class="drawer-divider"></div>
+    <a href="index.html#how-to-order"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>How to Order</a>
+    <a href="index.html#authenticity"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Authenticity</a>
+    <a href="https://wa.me/96590910123" target="_blank"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>Contact Us</a>
+  </nav>
+  <div class="drawer-foot">
+    <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Kuwait, Salmiya</div>
+    <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:5px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>+965 9091 0123</div>
+    <div style="display:flex;align-items:flex-start;gap:7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>admin@urbancloset.kw</div>
+  </div>
+</aside>
+
+<!-- TOPBAR -->
+<div class="topbar">New Arrivals &nbsp;·&nbsp; Collections &nbsp;·&nbsp; Authenticity &nbsp;·&nbsp; Consign &nbsp;·&nbsp; How to Order &nbsp;·&nbsp; Contact</div>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="nav-ham" onclick="openDrawer()">≡</div>
+  <a href="index.html" class="nav-logo">UrbanCloset</a>
+  <div class="nav-actions">
+    <div class="nav-pill" id="currencyToggle" onclick="toggleCurrency()" style="cursor:pointer;" title="Switch currency">KWD ▾</div>
+    <div class="nav-icons">
+      <span><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></span>
+      <span onclick="window.location.href='checkout.html'" style="cursor:pointer;position:relative;display:inline-flex;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg><span class="cart-count" id="cartBadge">0</span></span>
+    </div>
+    <div class="nav-cta" onclick="window.open('https://wa.me/96590910123','_blank')">Get in Touch</div>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-header-inner">
+    <div class="page-eyebrow">The Full Collection</div>
+    <h1 class="page-title">Shop <em>All.</em></h1>
+    <p class="page-sub">Every authenticated preloved bag, in one place. Filter by brand, condition, or price to find your next piece.</p>
+    <div class="page-count" id="pageCount">Loading collection…</div>
+  </div>
+</div>
+
+<!-- MARQUEE -->
+<div class="marquee-bar">
+  <span class="marquee-inner">
+    FREE SHIPPING TO KUWAIT · UAE · BAHRAIN · QATAR &nbsp;•&nbsp;
+    ALL BAGS 100% AUTHENTICATED &nbsp;•&nbsp;
+    NEW DROPS EVERY FRIDAY &nbsp;•&nbsp;
+    FOLLOW US @URBANCLOSET &nbsp;•&nbsp;
+    FREE SHIPPING TO KUWAIT · UAE · BAHRAIN · QATAR &nbsp;•&nbsp;
+    ALL BAGS 100% AUTHENTICATED &nbsp;•&nbsp;
+    NEW DROPS EVERY FRIDAY &nbsp;•&nbsp;
+    FOLLOW US @URBANCLOSET &nbsp;•&nbsp;
+  </span>
+</div>
+
+<!-- SHOP LAYOUT -->
+<div class="shop-wrap">
+
+  <!-- FILTER SIDEBAR -->
+  <aside class="filter-sidebar">
+    <div class="filter-head">
+      <span class="filter-title">Filters</span>
+      <span class="filter-clear" onclick="clearAllFilters()">Clear all</span>
+    </div>
+
+    <!-- Brand -->
+    <div class="filter-group">
+      <div class="filter-group-title">Brand</div>
+      <div id="brandFilters">
+        <!-- filled by JS from product data -->
+      </div>
+    </div>
+
+    <!-- Condition -->
+    <div class="filter-group">
+      <div class="filter-group-title">Condition</div>
+      <div class="filter-option" onclick="toggleFilter('condition','Excellent')" id="cf-Excellent">
+        <div class="filter-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="filter-label">Excellent</span>
+      </div>
+      <div class="filter-option" onclick="toggleFilter('condition','Very Good')" id="cf-Very Good">
+        <div class="filter-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="filter-label">Very Good</span>
+      </div>
+      <div class="filter-option" onclick="toggleFilter('condition','Good')" id="cf-Good">
+        <div class="filter-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="filter-label">Good</span>
+      </div>
+    </div>
+
+    <!-- Series Navigation -->
+    <div class="series-nav-section" id="seriesNavSection">
+      <div class="series-nav-header">
+        <span class="series-nav-title">Collections</span>
+        <span class="series-nav-all" onclick="clearSeriesFilter()">All</span>
+      </div>
+      <div id="seriesNavItems">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+
+    <!-- Price -->
+    <div class="filter-group">
+      <div class="filter-group-title">Price (KWD)</div>
+      <div class="price-inputs">
+        <input class="price-input" type="number" id="priceMin" placeholder="Min" min="0"/>
+        <span class="price-sep">—</span>
+        <input class="price-input" type="number" id="priceMax" placeholder="Max" min="0"/>
+      </div>
+      <button class="price-apply" onclick="applyPriceFilter()">Apply</button>
+    </div>
+  </aside>
+
+  <!-- PRODUCTS AREA -->
+  <div class="products-area">
+
+    <!-- Mobile Series Toggle -->
+    <button class="mobile-series-toggle" onclick="openSeriesDrawer()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+      <span class="toggle-label">Collections <span class="active-series-name" id="mobileActiveSeriesName"></span></span>
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+    </button>
+
+    <!-- Results bar -->
+    <div class="results-bar">
+      <div class="results-count" id="resultsCount"><strong>—</strong> bags</div>
+      <div class="sort-row">
+        <span class="sort-label">Sort</span>
+        <select class="sort-select" id="sortSelect" onchange="applySort()">
+          <option value="newest">Newest First</option>
+          <option value="price_asc">Price: Low to High</option>
+          <option value="price_desc">Price: High to Low</option>
+          <option value="name_asc">Name A–Z</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Active filter tags -->
+    <div class="active-filters" id="activeFilters"></div>
+
+    <!-- Grid -->
+    <div class="product-grid" id="productGrid">
+      <div class="grid-loading">Loading collection…</div>
+    </div>
+
+    <!-- Load more -->
+    <div class="load-more-wrap" id="loadMoreWrap" style="display:none;">
+      <button class="btn-load-more" id="btnLoadMore" onclick="loadMore()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+        Load More
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-grid">
+    <div>
+      <div class="footer-logo">UrbanCloset</div>
+      <p class="footer-tagline">Authentic preloved designer bags, curated for the bold &amp; intentional. Kuwait &amp; Gulf Region.</p>
+      <div class="footer-contact">
+        <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;opacity:0.5;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>Kuwait, Salmiya</div>
+        <div style="display:flex;align-items:flex-start;gap:7px;margin-bottom:4px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;opacity:0.5;"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8 19.79 19.79 0 01.01 1.18 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>+965 9091 0123</div>
+        <div style="display:flex;align-items:flex-start;gap:7px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;margin-top:1px;opacity:0.5;"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>admin@urbancloset.kw</div>
+      </div>
+      <div class="footer-social">
+        <a href="https://instagram.com/urbancloset" target="_blank"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg></a>
+        <a href="https://wa.me/96590910123" target="_blank"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <a href="index.html#new-arrivals">New Arrivals</a>
+      <a href="shop.html">Shop All</a>
+      <a href="#" onclick="applySeriesFilter('Series 1');return false;">Series 1</a>
+      <a href="#" onclick="applySeriesFilter('Series 2');return false;">Series 2</a>
+    </div>
+    <div class="footer-col">
+      <h4>Help</h4>
+      <a href="index.html#how-to-order">How to Order</a>
+      <a href="index.html#authenticity">Authenticity</a>
+      <a href="index.html#consignment">Consignment</a>
+      <a href="https://wa.me/96590910123" target="_blank">WhatsApp Us</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contact</h4>
+      <a href="tel:+96590910123">+965 9091 0123</a>
+      <a href="mailto:admin@urbancloset.kw">admin@urbancloset.kw</a>
+      <a href="https://instagram.com/urbancloset" target="_blank" style="display:flex;align-items:center;gap:6px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>@urbancloset</a>
+      <a href="https://wa.me/96590910123" target="_blank" style="display:flex;align-items:center;gap:6px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>WhatsApp Us</a>
+    </div>
+  </div>
+  <div class="footer-bottom">© 2026 UrbanCloset. All rights reserved. Independently curated luxury preloved bags.</div>
+</footer>
+
+<script>
+/* ── CURRENCY TOGGLE ── */
+function toggleCurrency() {
+  Currency.set(Currency.get() === 'KWD' ? 'USD' : 'KWD');
+}
+document.addEventListener('currencyChanged', function () {
+  document.getElementById('currencyToggle').textContent = Currency.get() + ' ▾';
+  applyAndRender();
+});
+document.getElementById('currencyToggle').textContent = Currency.get() + ' ▾';
+
+/* ── DRAWER ── */
+function openDrawer() { document.getElementById('sideDrawer').classList.add('open'); document.getElementById('drawerOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeDrawer() { document.getElementById('sideDrawer').classList.remove('open'); document.getElementById('drawerOverlay').classList.remove('open'); document.body.style.overflow=''; }
+
+/* ── SERIES OFF-CANVAS (MOBILE) ── */
+function openSeriesDrawer() { document.getElementById('seriesOffcanvas').classList.add('open'); document.getElementById('seriesOverlay').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeSeriesDrawer() { document.getElementById('seriesOffcanvas').classList.remove('open'); document.getElementById('seriesOverlay').classList.remove('open'); document.body.style.overflow=''; }
+
+/* ── CART BADGE ── */
+function updateCartBadge() { Cart.updateBadge(); }
+Cart.updateBadge();
+
+/* ── BAG SVG ── */
+function bagSVG(color) {
+  return '<svg viewBox="0 0 60 55" fill="none">' +
+    '<rect x="5" y="18" width="50" height="34" rx="3" fill="' + color + '"/>' +
+    '<path d="M18 18 C18 8 42 8 42 18" stroke="' + color + '" stroke-width="3" fill="none"/>' +
+    '<rect x="22" y="25" width="16" height="3" rx="1" fill="#C4956A"/>' +
+    '</svg>';
+}
+
+/* ── STARS ── */
+function stars(rating) {
+  var filled = Math.round(rating || 5);
+  var out = '';
+  for (var i=1; i<=5; i++) {
+    if (i <= filled) {
+      out += '<svg width="10" height="10" viewBox="0 0 24 24" fill="#8B5E4A" style="display:inline-block;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+    } else {
+      out += '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#8B5E4A" stroke-width="1.5" style="display:inline-block;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>';
+    }
+  }
+  return out;
+}
+
+/* ── STATE ── */
+var allProducts = [];
+var activeFilters = { brands: [], conditions: [], series: [], priceMin: null, priceMax: null };
+var currentSort = 'newest';
+var pageSize = 12;
+var currentPage = 1;
+
+/* ── LOAD ── */
+var demoProducts = [
+  { id:1, brand:'Chanel',         name:'Classic Flap',    price:380, condition:'Excellent', rating:5, category:'Series 1', color:'Black' },
+  { id:2, brand:'Louis Vuitton',  name:'Neverfull MM',    price:220, condition:'Very Good',  rating:4, category:'Series 1', color:'Monogram' },
+  { id:3, brand:'Balenciaga',     name:'City Bag',        price:290, condition:'Excellent', rating:5, category:'Series 1', color:'Black' },
+  { id:4, brand:'Christian Dior', name:'Lady Dior',       price:450, condition:'Very Good',  rating:4, category:'Series 2', color:'Nude' },
+  { id:5, brand:'Gucci',          name:'Marmont',         price:310, condition:'Excellent', rating:5, category:'Series 2', color:'Beige' },
+  { id:6, brand:'Prada',          name:'Saffiano Tote',   price:260, condition:'Good',       rating:4, category:'Series 2', color:'Black' },
+  { id:7, brand:'Hermès',         name:'Evelyne PM',      price:820, condition:'Excellent', rating:5, category:'New Arrival', color:'Tan' },
+  { id:8, brand:'Bottega Veneta', name:'Pouch',           price:480, condition:'Very Good',  rating:5, category:'New Arrival', color:'Nude' },
+  { id:9, brand:'Chanel',         name:'Boy Bag',         price:620, condition:'Excellent', rating:5, category:'Series 1', color:'Burgundy' },
+  { id:10,brand:'Louis Vuitton',  name:'Speedy 30',       price:180, condition:'Good',       rating:4, category:'Series 2', color:'Monogram' },
+  { id:11,brand:'Celine',         name:'Luggage Tote',    price:340, condition:'Very Good',  rating:4, category:'Series 1', color:'Camel' },
+  { id:12,brand:'Saint Laurent',  name:'Loulou Small',    price:390, condition:'Excellent', rating:5, category:'New Arrival', color:'Black' },
+];
+
+
+
+function normalizeProducts(products) {
+  if (!Array.isArray(products)) return [];
+  return products.map(function(p) {
+    if (!p || typeof p !== 'object') return null;
+    if (!p.image_url) {
+      p.image_url = Array.isArray(p.images) ? (p.images[0] || null) : (p.images || null);
+    }
+    return p;
+  }).filter(Boolean);
+}
+
+async function loadProducts() {
+  try {
+    var res = await fetch(API_URL + '/products');
+    if (!res.ok) throw new Error();
+    var json = await res.json();
+    var list = (json && json.data) ? json.data : json;
+    allProducts = normalizeProducts(list);
+  } catch(e) {
+    allProducts = demoProducts;
+  }
+
+  // Fetch enabled series (products from server already filtered, but we need names for nav)
+  await fetchEnabledSeries();
+
+  buildBrandFilters();
+  buildSeriesNav();
+
+  // Handle ?series= URL param on load
+  var urlParams = new URLSearchParams(window.location.search);
+  var seriesParam = urlParams.get('series');
+  if (seriesParam && ALL_SERIES.includes(seriesParam)) {
+    activeFilters.series = [seriesParam];
+    updateSeriesNavActive();
+  }
+
+  applyAndRender();
+  document.getElementById('pageCount').textContent = allProducts.length + ' authenticated bags';
+}
+
+/* ── BUILD BRAND FILTERS FROM DATA ── */
+function buildBrandFilters() {
+  var brands = [];
+  allProducts.forEach(function(p){ if (p.brand && !brands.includes(p.brand)) brands.push(p.brand); });
+  brands.sort();
+  document.getElementById('brandFilters').innerHTML = brands.map(function(b){
+    var count = allProducts.filter(function(p){ return p.brand === b; }).length;
+    return '<div class="filter-option" onclick="toggleFilter(\'brand\',\'' + b + '\')" id="bf-' + b.replace(/\s/g,'_') + '">' +
+      '<div class="filter-check"><svg width="9" height="9" viewBox="0 0 12 12" fill="none"><polyline points="2 6 5 9 10 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>' +
+      '<span class="filter-label">' + b + '</span>' +
+      '<span class="filter-count">' + count + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+/* ── BUILD SERIES NAV ── */
+var ALL_SERIES = []; // populated dynamically from /series API
+
+async function fetchEnabledSeries() {
+  try {
+    var res = await fetch(API_URL + '/series');
+    var json = await res.json();
+    var list = (json && json.data) ? json.data : (Array.isArray(json) ? json : []);
+    // list is already only enabled series; extract names
+    ALL_SERIES = list.map(function(s){ return s.name; });
+  } catch(e) {
+    // Fallback: derive series from product data if API unavailable
+    var seen = {};
+    allProducts.forEach(function(p){ if (p.series) seen[p.series] = true; else if (p.category && p.category.match(/^Series\s+\d+$/i)) seen[p.category] = true; });
+    ALL_SERIES = Object.keys(seen).sort();
+  }
+}
+
+function buildSeriesNav() {
+  var svgIcon = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>';
+
+  function seriesItemHTML(s, isMobile) {
+    var count = allProducts.filter(function(p){ return p.category === s || p.series === s; }).length;
+    var active = activeFilters.series.length === 1 && activeFilters.series[0] === s ? ' active' : '';
+    var onclick = isMobile
+      ? 'selectSeriesNav(\'' + s + '\', true)'
+      : 'selectSeriesNav(\'' + s + '\', false)';
+    return '<div class="series-item' + active + '" id="' + (isMobile ? 'mob-' : 'desk-') + 'sn-' + s.replace(/\s/g,'_') + '" onclick="' + onclick + '">' +
+      '<div class="series-item-dot"></div>' +
+      '<span class="series-item-name">' + s + '</span>' +
+      '<span class="series-item-count">' + count + '</span>' +
+    '</div>';
+  }
+
+  var desktopHTML = ALL_SERIES.map(function(s){ return seriesItemHTML(s, false); }).join('');
+  var seriesNavEl = document.getElementById('seriesNavItems');
+  if (seriesNavEl) seriesNavEl.innerHTML = desktopHTML;
+
+  var mobileHTML = ALL_SERIES.map(function(s){ return seriesItemHTML(s, true); }).join('');
+  var seriesOffEl = document.getElementById('seriesOffcanvasItems');
+  if (seriesOffEl) seriesOffEl.innerHTML = mobileHTML;
+
+  // Populate drawer links
+  var drawerHTML = ALL_SERIES.map(function(s) {
+    var count = allProducts.filter(function(p){ return p.category === s || p.series === s; }).length;
+    return '<a href="#" onclick="selectSeriesNav(\'' + s + '\', false);closeDrawer();return false;">' +
+      svgIcon + s + ' <span class="drawer-badge" style="margin-left:auto;">' + count + '</span></a>';
+  }).join('');
+  var drawerSeriesEl = document.getElementById('drawerSeriesLinks');
+  if (drawerSeriesEl) drawerSeriesEl.innerHTML = drawerHTML;
+}
+
+function selectSeriesNav(series, fromMobile) {
+  if (fromMobile) closeSeriesDrawer();
+  // Toggle off if already active
+  if (activeFilters.series.length === 1 && activeFilters.series[0] === series) {
+    clearSeriesFilter();
+    return;
+  }
+  activeFilters.brands = [];
+  activeFilters.conditions = [];
+  activeFilters.series = [series];
+  document.querySelectorAll('.filter-option').forEach(function(el){ el.classList.remove('checked'); });
+  currentPage = 1;
+  applyAndRender();
+  updateSeriesNavActive();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Update URL param
+  var url = new URL(window.location.href);
+  url.searchParams.set('series', series);
+  history.replaceState(null, '', url.toString());
+}
+
+function clearSeriesFilter() {
+  activeFilters.series = [];
+  updateSeriesNavActive();
+  applyAndRender();
+  var url = new URL(window.location.href);
+  url.searchParams.delete('series');
+  history.replaceState(null, '', url.toString());
+}
+
+function updateSeriesNavActive() {
+  var activeSeries = activeFilters.series[0] || null;
+  ALL_SERIES.forEach(function(s) {
+    var key = s.replace(/\s/g,'_');
+    var desk = document.getElementById('desk-sn-' + key);
+    var mob  = document.getElementById('mob-sn-' + key);
+    var isActive = activeSeries === s;
+    if (desk) desk.classList.toggle('active', isActive);
+    if (mob)  mob.classList.toggle('active', isActive);
+  });
+  // Update mobile toggle label
+  var mobileLabel = document.getElementById('mobileActiveSeriesName');
+  if (mobileLabel) mobileLabel.textContent = activeSeries ? '· ' + activeSeries : '';
+}
+
+/* ── FILTERS ── */
+function toggleFilter(type, value) {
+  if (type === 'brand') {
+    var idx = activeFilters.brands.indexOf(value);
+    if (idx > -1) activeFilters.brands.splice(idx, 1);
+    else activeFilters.brands.push(value);
+    var el = document.getElementById('bf-' + value.replace(/\s/g,'_'));
+    if (el) el.classList.toggle('checked', activeFilters.brands.includes(value));
+  }
+  if (type === 'condition') {
+    var idx = activeFilters.conditions.indexOf(value);
+    if (idx > -1) activeFilters.conditions.splice(idx, 1);
+    else activeFilters.conditions.push(value);
+    var el = document.getElementById('cf-' + value);
+    if (el) el.classList.toggle('checked', activeFilters.conditions.includes(value));
+  }
+  if (type === 'series') {
+    var idx = activeFilters.series.indexOf(value);
+    if (idx > -1) activeFilters.series.splice(idx, 1);
+    else activeFilters.series.push(value);
+    var el = document.getElementById('sf-' + value);
+    if (el) el.classList.toggle('checked', activeFilters.series.includes(value));
+    updateSeriesNavActive();
+  }
+  currentPage = 1;
+  applyAndRender();
+}
+
+function applyPriceFilter() {
+  var min = document.getElementById('priceMin').value;
+  var max = document.getElementById('priceMax').value;
+  activeFilters.priceMin = min ? parseFloat(min) : null;
+  activeFilters.priceMax = max ? parseFloat(max) : null;
+  currentPage = 1;
+  applyAndRender();
+}
+
+function applySeriesFilter(series) {
+  selectSeriesNav(series, false);
+}
+
+function clearAllFilters() {
+  activeFilters = { brands: [], conditions: [], series: [], priceMin: null, priceMax: null };
+  document.querySelectorAll('.filter-option').forEach(function(el){ el.classList.remove('checked'); });
+  document.getElementById('priceMin').value = '';
+  document.getElementById('priceMax').value = '';
+  updateSeriesNavActive();
+  currentPage = 1;
+  applyAndRender();
+  var url = new URL(window.location.href);
+  url.searchParams.delete('series');
+  history.replaceState(null, '', url.toString());
+}
+
+function applySort() {
+  currentSort = document.getElementById('sortSelect').value;
+  applyAndRender();
+}
+
+/* ── FILTER + SORT + RENDER ── */
+function applyAndRender() {
+  var filtered = allProducts.filter(function(p) {
+    if (activeFilters.brands.length && !activeFilters.brands.includes(p.brand)) return false;
+    if (activeFilters.conditions.length && !activeFilters.conditions.includes(p.condition)) return false;
+    if (activeFilters.series.length && !activeFilters.series.includes(p.category) && !activeFilters.series.includes(p.series)) return false;
+    if (activeFilters.priceMin !== null && parseFloat(p.price) < activeFilters.priceMin) return false;
+    if (activeFilters.priceMax !== null && parseFloat(p.price) > activeFilters.priceMax) return false;
+    return true;
+  });
+
+  // sort
+  if (currentSort === 'price_asc')  filtered.sort(function(a,b){ return parseFloat(a.price)-parseFloat(b.price); });
+  if (currentSort === 'price_desc') filtered.sort(function(a,b){ return parseFloat(b.price)-parseFloat(a.price); });
+  if (currentSort === 'name_asc')   filtered.sort(function(a,b){ return (a.name||'').localeCompare(b.name||''); });
+  if (currentSort === 'newest')     filtered.sort(function(a,b){ return b.id - a.id; });
+
+  // update counts
+  document.getElementById('resultsCount').innerHTML = '<strong>' + filtered.length + '</strong> bag' + (filtered.length !== 1 ? 's' : '');
+
+  // active filter tags
+  var tags = [];
+  activeFilters.brands.forEach(function(b){ tags.push({ label: b, remove: function(){ toggleFilter('brand',b); } }); });
+  activeFilters.conditions.forEach(function(c){ tags.push({ label: c, remove: function(){ toggleFilter('condition',c); } }); });
+  activeFilters.series.forEach(function(s){ tags.push({ label: s, remove: function(){ toggleFilter('series',s); } }); });
+  if (activeFilters.priceMin !== null || activeFilters.priceMax !== null) {
+    var label = 'KD ' + (activeFilters.priceMin||'0') + ' – ' + (activeFilters.priceMax||'∞');
+    tags.push({ label: label, remove: function(){ activeFilters.priceMin=null; activeFilters.priceMax=null; document.getElementById('priceMin').value=''; document.getElementById('priceMax').value=''; applyAndRender(); } });
+  }
+  document.getElementById('activeFilters').innerHTML = tags.map(function(t, i){
+    return '<span class="active-filter-tag" onclick="removeTag(' + i + ')">' + t.label +
+      '<svg width="8" height="8" viewBox="0 0 12 12" fill="none"><line x1="2" y1="2" x2="10" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><line x1="10" y1="2" x2="2" y2="10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></span>';
+  }).join('');
+  window._tagRemovers = tags.map(function(t){ return t.remove; });
+
+  // paginate
+  var paged = filtered.slice(0, currentPage * pageSize);
+  renderGrid(paged);
+
+  var loadMoreWrap = document.getElementById('loadMoreWrap');
+  if (filtered.length > paged.length) {
+    loadMoreWrap.style.display = 'block';
+    window._filteredForLoadMore = filtered;
+  } else {
+    loadMoreWrap.style.display = 'none';
+  }
+}
+
+function removeTag(i) { if (window._tagRemovers && window._tagRemovers[i]) window._tagRemovers[i](); }
+
+function loadMore() {
+  currentPage++;
+  applyAndRender();
+}
+
+/* ── RENDER GRID ── */
+function renderGrid(products) {
+  var grid = document.getElementById('productGrid');
+  if (!products.length) {
+var msg = allProducts.length === 0
+      ? 'No products available.'
+      : 'No bags found';
+    var sub = allProducts.length === 0
+      ? 'Check back soon for new arrivals.'
+      : 'Try removing some filters.';
+    grid.innerHTML = '<div class="grid-empty"><div class="grid-empty-title">' + msg + '</div><p class="grid-empty-sub">' + sub + '</p></div>';    return;
+  }
+  var bgColors = ['#b8967a','#c4a882','#a88868','#d4b896','#c8a070','#b09060'];
+  var darkColors= ['#2c1810','#4a3020','#1a1a1a','#8B6040','#3a2818','#5a3a28'];
+  grid.innerHTML = products.map(function(p, i) {
+    var bg = bgColors[i % bgColors.length];
+    var dk = darkColors[i % darkColors.length];
+    var imgHtml = p.image_url ? '<img src="' + p.image_url + '" alt="' + (p.name || '') + '" loading="lazy" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display=\'none\'">' : '<div class="product-img-placeholder" style="background:' + bg + '">' + bagSVG(dk) + '</div>';
+    return '<div class="product-card" onclick="window.location.href=\'product.html?id=' + p.id + '\'">' +
+      '<div class="product-img-wrap">' +
+        imgHtml +
+        '<div class="product-condition-badge">' + (p.condition||'Excellent') + '</div>' +
+      '</div>' +
+      '<div class="product-info">' +
+        '<div class="product-brand">' + (p.brand||'') + '</div>' +
+        '<div class="product-name">' + (p.name||'') + '</div>' +
+        '<div class="product-stars">' + stars(p.rating) + '</div>' +
+        '<div class="product-footer">' +
+          '<div class="product-price">' + Currency.format(p.price || 0) + '</div>' +
+          '<div class="product-code">#' + String(p.id).padStart(3,'0') + '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+loadProducts();
+</script>
+
+</body>
+</html>
