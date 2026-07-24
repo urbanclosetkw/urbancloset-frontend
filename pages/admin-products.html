@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Products — UrbanCloset Admin</title>
+  <link rel="icon" type="image/png" href="images/uclogo.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -523,9 +524,23 @@ function authHeaderJSON() {
 }
 
 function logout() {
-  sessionStorage.removeItem('uc_admin_token');
-  sessionStorage.removeItem('uc_admin_user');
-  window.location.href = 'admin-login.html';
+  if (!confirm('Are you sure you want to sign out?')) return;
+
+  var btn = document.querySelector('.btn-logout');
+  if (btn) {
+    btn.textContent = 'Signing out\u2026';
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    btn.style.cursor = 'not-allowed';
+  }
+
+  showToast('Signed out successfully');
+
+  setTimeout(function () {
+    sessionStorage.removeItem('uc_admin_token');
+    sessionStorage.removeItem('uc_admin_user');
+    window.location.href = 'admin-login.html';
+  }, 700);
 }
 
 /* ── TOAST ── */

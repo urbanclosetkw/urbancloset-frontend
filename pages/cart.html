@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Your Cart — UrbanCloset</title>
+  <link rel="icon" type="image/png" href="images/uclogo.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -214,6 +215,28 @@
     .btn-clear-cart:hover { color: #c0392b; }
     .btn-clear-cart svg { flex-shrink: 0; }
 
+    /* ── FILTER BAR ──────────────────────────────────────── */
+    .filter-bar {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    .filter-select {
+      appearance: none; -webkit-appearance: none;
+      background: #fff; border: 1.5px solid rgba(139,94,74,0.2); border-radius: 3px;
+      padding: 8px 28px 8px 12px; font-size: 11px; font-family: var(--font-sans);
+      color: var(--dark2); cursor: pointer;
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'><path d='M1 1l4 4 4-4' stroke='%237a6a5a' stroke-width='1.5' fill='none'/></svg>");
+      background-repeat: no-repeat; background-position: right 10px center;
+    }
+    .btn-delete-selected {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase;
+      color: var(--muted); cursor: pointer; transition: color 0.2s;
+      padding: 6px 0; margin-left: auto;
+    }
+    .btn-delete-selected:hover { color: #c0392b; }
+    .btn-delete-selected svg { flex-shrink: 0; }
+
     /* ── SELECT ALL ROW ─────────────────────────────────── */
     .select-all-row {
       display: flex; align-items: center; gap: 10px;
@@ -398,7 +421,7 @@
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
       New Arrivals
     </a>
-    <a href="#">
+    <a href="#" onclick="event.preventDefault(); window.location.href = localStorage.getItem('uc_token') ? 'orders.html' : 'login.html';">
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 001.99 1.61h9.72a2 2 0 001.99-1.61L23 6H6"/></svg>
       Shop All
     </a>
@@ -446,7 +469,7 @@
   <a href="index.html" class="nav-logo">UrbanCloset</a>
   <div class="nav-actions">
     <div class="nav-icons">
-      <span>
+      <span onclick="window.location.href = localStorage.getItem('uc_token') ? 'orders.html' : 'login.html'" style="cursor:pointer;display:inline-flex;" title="Account">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
       </span>
       <span style="cursor:pointer;position:relative;display:inline-flex;">
@@ -493,6 +516,26 @@
         <div class="btn-clear-cart" onclick="clearCart()">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
           Clear Cart
+        </div>
+      </div>
+      <div class="filter-bar">
+        <select class="filter-select" id="filterBrand" onchange="applyFilters()">
+          <option value="">All Brands</option>
+        </select>
+        <select class="filter-select" id="filterSeries" onchange="applyFilters()">
+          <option value="">All Series</option>
+        </select>
+        <select class="filter-select" id="filterCondition" onchange="applyFilters()">
+          <option value="">All Conditions</option>
+        </select>
+        <select class="filter-select" id="filterSort" onchange="applyFilters()">
+          <option value="">Sort: Default</option>
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+        </select>
+        <div class="btn-delete-selected" onclick="deleteSelected()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          Delete Selected
         </div>
       </div>
       <div class="select-all-row">
@@ -727,6 +770,73 @@ async function goToCheckout() {
   window.location.href = 'checkout.html';
 }
 
+/* ── FILTERS ──
+   Filters only change which cart rows are VISIBLE. They never touch
+   quantities, selection, the order summary, or the cart badge — those
+   always operate on the full cart, per spec.
+── */
+var fullCartCache  = [];
+var currentFilters = { brand: '', series: '', condition: '', sort: '' };
+
+function populateFilterOptions(cart) {
+  function fillSelect(id, key) {
+    var sel = document.getElementById(id);
+    if (!sel) return;
+    var current = sel.value;
+    var values = Array.from(new Set(cart.map(function (i) { return i[key]; }).filter(Boolean)));
+    var placeholder = sel.options[0];
+    sel.innerHTML = '';
+    sel.appendChild(placeholder);
+    values.forEach(function (v) {
+      var opt = document.createElement('option');
+      opt.value = v; opt.textContent = v;
+      sel.appendChild(opt);
+    });
+    if (values.indexOf(current) !== -1) sel.value = current;
+  }
+  fillSelect('filterBrand', 'brand');
+  fillSelect('filterSeries', 'series');
+  fillSelect('filterCondition', 'condition');
+}
+
+function getFilteredSortedCart(cart) {
+  var items = cart.filter(function (i) {
+    if (currentFilters.brand     && i.brand     !== currentFilters.brand)     return false;
+    if (currentFilters.series    && i.series    !== currentFilters.series)    return false;
+    if (currentFilters.condition && i.condition !== currentFilters.condition) return false;
+    return true;
+  });
+  if (currentFilters.sort === 'newest') {
+    items = items.slice().sort(function (a, b) { return (b.id || 0) - (a.id || 0); });
+  } else if (currentFilters.sort === 'oldest') {
+    items = items.slice().sort(function (a, b) { return (a.id || 0) - (b.id || 0); });
+  }
+  return items;
+}
+
+function applyFilters() {
+  currentFilters.brand     = document.getElementById('filterBrand').value;
+  currentFilters.series    = document.getElementById('filterSeries').value;
+  currentFilters.condition = document.getElementById('filterCondition').value;
+  currentFilters.sort      = document.getElementById('filterSort').value;
+  document.getElementById('cartItems').innerHTML = buildCartItemsHTML(getFilteredSortedCart(fullCartCache));
+}
+
+/* ── DELETE SELECTED ── */
+async function deleteSelected() {
+  if (!selectedIds.size) {
+    showToast('Please select at least one item.');
+    return;
+  }
+  if (!confirm('Delete ' + selectedIds.size + ' selected item(s) from your cart?')) return;
+  var ids = Array.from(selectedIds);
+  for (var i = 0; i < ids.length; i++) {
+    await Cart.remove(ids[i]);
+  }
+  showToast('Selected items deleted');
+  renderPage();
+}
+
 /* ── RENDER PAGE ── */
 async function renderPage() {
   var cart = await Cart.get();
@@ -761,10 +871,28 @@ async function renderPage() {
   }
   saveSelection();
 
+  fullCartCache = cart;
+  populateFilterOptions(cart);
+
+  /* Cart item rows (respecting current visual filters) */
+  document.getElementById('cartItems').innerHTML = buildCartItemsHTML(getFilteredSortedCart(cart));
+
+  var selectAllCheck = document.getElementById('selectAllCheck');
+  var selCount        = document.getElementById('selCount');
+  if (selectAllCheck) selectAllCheck.checked = cart.length > 0 && selectedIds.size === cart.length;
+  if (selCount) selCount.textContent = selectedIds.size + ' of ' + cart.length + ' selected';
+
+  var selectedItems = cart.filter(function (i) { return selectedIds.has(String(i.id)); });
+  renderSummary(selectedItems);
+  btnCheckout.disabled = selectedItems.length === 0;
+}
+
+/* Builds the HTML for a given list of cart item rows (used for both the
+   full cart and any currently-filtered visible subset). */
+function buildCartItemsHTML(cart) {
   var removeSVG = '<svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
 
-  /* Cart item rows */
-  document.getElementById('cartItems').innerHTML = cart.map(function(item) {
+  return cart.map(function(item) {
     var imgHtml = item.image_url
       ? '<img src="' + item.image_url + '" alt="' + (item.name || '') + '">'
       : bagSVG();
@@ -775,6 +903,8 @@ async function renderPage() {
     var isChecked = selectedIds.has(String(item.id));
 
     var metaParts = [];
+    if (item.condition) metaParts.push('<span>Condition: <strong>' + item.condition + '</strong></span>');
+    if (item.series)    metaParts.push('<span>Series: <strong>'    + item.series    + '</strong></span>');
     if (item.size)  metaParts.push('<span>Size: <strong>' + item.size  + '</strong></span>');
     if (item.color) metaParts.push('<span>Color: <strong>' + item.color + '</strong></span>');
 
@@ -799,15 +929,6 @@ async function renderPage() {
       '</div>' +
     '</div>';
   }).join('');
-
-  var selectAllCheck = document.getElementById('selectAllCheck');
-  var selCount        = document.getElementById('selCount');
-  if (selectAllCheck) selectAllCheck.checked = cart.length > 0 && selectedIds.size === cart.length;
-  if (selCount) selCount.textContent = selectedIds.size + ' of ' + cart.length + ' selected';
-
-  var selectedItems = cart.filter(function (i) { return selectedIds.has(String(i.id)); });
-  renderSummary(selectedItems);
-  btnCheckout.disabled = selectedItems.length === 0;
 }
 
 /* Renders the order-summary panel (line items + totals) for whatever

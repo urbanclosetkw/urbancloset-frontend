@@ -181,41 +181,127 @@ function localGet() {
 
     var style = document.createElement('style');
     style.textContent =
-      '.mini-cart-popover{display:none;position:absolute;top:28px;right:-10px;width:260px;' +
+      '.mini-cart-popover{display:none;position:absolute;top:28px;right:-10px;width:300px;' +
       'background:#fff;border:1px solid rgba(184,147,106,0.25);border-radius:6px;' +
-      'box-shadow:0 8px 24px rgba(36,26,15,0.15);padding:14px;z-index:50;text-align:left;' +
+      'box-shadow:0 8px 24px rgba(36,26,15,0.15);padding:14px;z-index:401;text-align:left;' +
       'font-family:"DM Sans",sans-serif;cursor:default;}' +
       '.mini-cart-popover.open{display:block;}' +
-      '.mini-cart-popover .mc-item{display:flex;justify-content:space-between;gap:8px;' +
-      'font-size:12px;color:#241a0f;padding:6px 0;border-bottom:1px solid rgba(184,147,106,0.12);}' +
-      '.mini-cart-popover .mc-empty{font-size:12px;color:#7a6a5a;text-align:center;padding:8px 0;}' +
+      '.mini-cart-popover .mc-title{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;' +
+      'color:#7a6a5a;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}' +
+      '.mini-cart-popover .mc-close{display:none;cursor:pointer;font-size:14px;color:#7a6a5a;line-height:1;}' +
+      '.mini-cart-popover .mc-list{max-height:280px;overflow-y:auto;margin:0 -14px;padding:0 14px;}' +
+      '.mini-cart-popover .mc-item{display:flex;align-items:center;gap:10px;' +
+      'padding:8px 0;border-bottom:1px solid rgba(184,147,106,0.12);}' +
+      '.mini-cart-popover .mc-item:last-child{border-bottom:none;}' +
+      '.mini-cart-popover .mc-img{width:44px;height:44px;border-radius:3px;overflow:hidden;' +
+      'flex-shrink:0;background:#F0E8DE;display:flex;align-items:center;justify-content:center;}' +
+      '.mini-cart-popover .mc-img img{width:100%;height:100%;object-fit:cover;}' +
+      '.mini-cart-popover .mc-info{flex:1;min-width:0;}' +
+      '.mini-cart-popover .mc-name{font-size:12px;color:#241a0f;line-height:1.3;' +
+      'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}' +
+      '.mini-cart-popover .mc-qty{font-size:10.5px;color:#7a6a5a;margin-top:2px;}' +
+      '.mini-cart-popover .mc-price{font-size:12px;color:#8B5E4A;font-weight:500;flex-shrink:0;}' +
+      '.mini-cart-popover .mc-empty{font-size:12px;color:#7a6a5a;text-align:center;padding:16px 0;}' +
+      '.mini-cart-popover .mc-total-row{display:flex;justify-content:space-between;align-items:center;' +
+      'font-size:11px;color:#241a0f;padding-top:10px;margin-top:2px;border-top:1px solid rgba(184,147,106,0.18);}' +
+      '.mini-cart-popover .mc-total-row strong{font-size:13px;}' +
       '.mini-cart-popover .mc-btn{display:block;width:100%;text-align:center;background:#8B5E4A;' +
       'color:#fff;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;padding:9px;' +
-      'border-radius:3px;margin-top:8px;text-decoration:none;}';
+      'border-radius:3px;margin-top:10px;text-decoration:none;}' +
+      /* Mobile: hover doesn't exist on touch, so the mini-cart becomes a
+         full-width slide-down drawer from the top of the screen instead. */
+      '.mc-drawer-overlay{display:none;position:fixed;inset:0;background:rgba(21,13,5,0.4);' +
+      'z-index:400;opacity:0;transition:opacity 0.25s;}' +
+      '.mc-drawer-overlay.open{display:block;opacity:1;}' +
+      '@media (max-width:720px){' +
+        '.mini-cart-popover{position:fixed;top:0;left:0;right:0;width:100%;' +
+        'border-radius:0 0 10px 10px;transform:translateY(-100%);transition:transform 0.3s cubic-bezier(.4,0,.2,1);' +
+        'display:block;visibility:hidden;padding:16px;max-height:80vh;overflow-y:auto;}' +
+        '.mini-cart-popover.open{transform:translateY(0);visibility:visible;}' +
+        '.mini-cart-popover .mc-close{display:block;}' +
+      '}';
     document.head.appendChild(style);
+
+    var overlay = document.createElement('div');
+    overlay.className = 'mc-drawer-overlay';
+    document.body.appendChild(overlay);
 
     var popover = document.createElement('div');
     popover.className = 'mini-cart-popover';
     anchor.appendChild(popover);
     popover.addEventListener('click', function (e) { e.stopPropagation(); }); // don't trigger anchor's onclick
 
+    function isMobile() {
+      return window.matchMedia('(max-width: 720px)').matches;
+    }
+
+    function openDrawer() {
+      popover.classList.add('open');
+      if (isMobile()) overlay.classList.add('open');
+    }
+    function closeDrawer() {
+      popover.classList.remove('open');
+      overlay.classList.remove('open');
+    }
+
+    overlay.addEventListener('click', closeDrawer);
+
+    function bagPlaceholderSVG() {
+      return '<svg viewBox="0 0 60 55" width="24" fill="none"><rect x="5" y="18" width="50" height="34" rx="3" fill="#A48374" opacity="0.4"/><path d="M18 18 C18 8 42 8 42 18" stroke="#A48374" stroke-width="3" fill="none" opacity="0.5"/></svg>';
+    }
+
+    async function renderPopoverContents() {
+      var items = await Cart.get();
+      var closeBtn = '<span class="mc-close" onclick="this.closest(\'.mini-cart-popover\').dispatchEvent(new Event(\'mc-close-tap\'))">✕</span>';
+      if (!items.length) {
+        popover.innerHTML = '<div class="mc-title">Cart' + closeBtn + '</div><div class="mc-empty">Your cart is empty</div>';
+      } else {
+        var total = items.reduce(function (s, i) { return s + (parseFloat(i.price || 0) * (i.qty || 1)); }, 0);
+        var rows = items.map(function (i) {
+          var price   = (typeof Currency !== 'undefined') ? Currency.format(i.price) : i.price;
+          var imgHtml = i.image_url
+            ? '<img src="' + i.image_url + '" alt="' + (i.name || '') + '">'
+            : bagPlaceholderSVG();
+          return '<div class="mc-item">' +
+            '<div class="mc-img">' + imgHtml + '</div>' +
+            '<div class="mc-info">' +
+              '<div class="mc-name">' + (i.name || '') + '</div>' +
+              '<div class="mc-qty">Qty ' + (i.qty || 1) + '</div>' +
+            '</div>' +
+            '<div class="mc-price">' + price + '</div>' +
+          '</div>';
+        }).join('');
+        var totalFormatted = (typeof Currency !== 'undefined') ? Currency.format(total) : total;
+        popover.innerHTML =
+          '<div class="mc-title">Cart (' + items.length + ' item' + (items.length > 1 ? 's' : '') + ')' + closeBtn + '</div>' +
+          '<div class="mc-list">' + rows + '</div>' +
+          '<div class="mc-total-row"><span>Total</span><strong>' + totalFormatted + '</strong></div>' +
+          '<a href="cart.html" class="mc-btn">View Cart</a>';
+      }
+      popover.addEventListener('mc-close-tap', closeDrawer);
+    }
+
     var hideTimer;
     anchor.addEventListener('mouseenter', async function () {
+      if (isMobile()) return; // no hover on touch devices
       clearTimeout(hideTimer);
-      var items = await Cart.get();
-      if (!items.length) {
-        popover.innerHTML = '<div class="mc-empty">Your cart is empty</div>';
-      } else {
-        popover.innerHTML = items.map(function (i) {
-          var price = (typeof Currency !== 'undefined') ? Currency.format(i.price) : i.price;
-          return '<div class="mc-item"><span>' + (i.name || '') + ' × ' + (i.qty || 1) + '</span><span>' + price + '</span></div>';
-        }).join('') + '<a href="cart.html" class="mc-btn">Go to Cart</a>';
-      }
-      popover.classList.add('open');
+      await renderPopoverContents();
+      openDrawer();
     });
     anchor.addEventListener('mouseleave', function () {
-      hideTimer = setTimeout(function () { popover.classList.remove('open'); }, 150);
+      if (isMobile()) return;
+      hideTimer = setTimeout(closeDrawer, 150);
     });
+
+    // Mobile: first tap opens the drawer for a peek instead of leaving the
+    // page immediately; tapping "View Cart" (or the icon again) proceeds.
+    anchor.addEventListener('click', function (e) {
+      if (!isMobile()) return; // desktop keeps its normal click-through navigation
+      if (popover.classList.contains('open')) return; // already open — let the tap through (e.g. "View Cart")
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      renderPopoverContents().then(openDrawer);
+    }, true);
   }
 
   if (document.readyState === 'loading') {

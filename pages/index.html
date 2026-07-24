@@ -4,6 +4,7 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>UrbanCloset — Authentic Preloved Designer Bags</title>
+  <link rel="icon" type="image/png" href="images/uclogo.png"/>
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
@@ -349,13 +350,19 @@
       overflow: hidden;
       cursor: pointer;
       transition: transform 0.22s, box-shadow 0.22s;
+      /* FIXED SIZE BOX: every card is identical regardless of content length */
+      width: 100%;
+      height: 400px;
+      display: flex;
+      flex-direction: column;
     }
     .product-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 12px 32px rgba(26,16,8,0.18);
     }
     .product-img-wrap {
-      aspect-ratio: 3/4;
+      height: 220px;
+      flex: 0 0 220px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -386,13 +393,22 @@
       padding: 3px 8px;
       border-radius: 20px;
     }
-    .product-info { padding: 12px; }
+    .product-info {
+      padding: 12px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
     .product-brand {
       font-size: 8px;
       letter-spacing: 2.5px;
       text-transform: uppercase;
       color: #7a5c3a;
       margin-bottom: 3px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .product-name {
       font-family: var(--font-serif);
@@ -400,6 +416,9 @@
       color: var(--dark2);
       margin-bottom: 6px;
       font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .product-footer {
       display: flex;
@@ -416,7 +435,8 @@
     .product-actions {
       display: flex;
       gap: 6px;
-      margin-top: 10px;
+      margin-top: auto;
+      padding-top: 10px;
     }
     .product-btn {
       flex: 1;
@@ -1045,7 +1065,8 @@
     </div><!-- /drawerSeriesLinks -->
     <div class="drawer-divider"></div>
 
-    <a href="checkout.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Cart <span class="drawer-badge" id="cartDrawerCount">0</span></a>
+    <a href="cart.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>Cart <span class="drawer-badge" id="cartDrawerCount">0</span></a>
+
     <a href="orders.html"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="13" y2="16"/></svg>My Orders</a>    <div class="drawer-divider"></div>
     <a href="#how-to-order"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>How to Order</a>
     <a href="#authenticity"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Authenticity</a>
@@ -1067,7 +1088,6 @@
   <div class="nav-ham" onclick="openDrawer()">≡</div>
   <a href="index.html" class="nav-logo">UrbanCloset</a>
   <div class="nav-actions">
-    <div class="nav-pill" id="currencyToggle" onclick="toggleCurrency()" style="cursor:pointer;">KWD ▾</div>
     <div class="nav-icons">
      <div style="position:relative;">
   <div id="accountBtn" onclick="toggleAccountPanel()" style="cursor:pointer;display:flex;align-items:center;">
@@ -1111,7 +1131,7 @@
         </div>
        <a href="orders.html" style="display:block;width:100%;background:#F0E8DE;border:1.5px solid rgba(139,94,74,0.3);color:#8B5E4A;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;margin-bottom:8px;font-family:'DM Sans',sans-serif;text-align:center;text-decoration:none;">My Orders</a>
         <button onclick="openEditMode()" style="width:100%;background:#F0E8DE;border:1.5px solid rgba(139,94,74,0.3);color:#8B5E4A;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;margin-bottom:8px;font-family:'DM Sans',sans-serif;">Edit Profile</button>
-        <button onclick="accountLogout()" style="width:100%;background:rgba(192,57,43,0.07);border:1.5px solid rgba(192,57,43,0.2);color:#c0392b;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;font-family:'DM Sans',sans-serif;">Sign Out</button>
+        <button id="accountLogoutBtn" onclick="accountLogout()" style="width:100%;background:rgba(192,57,43,0.07);border:1.5px solid rgba(192,57,43,0.2);color:#c0392b;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;font-family:'DM Sans',sans-serif;">Sign Out</button>
       </div>
 
       <!-- Edit mode -->
@@ -1518,17 +1538,9 @@
 
 <!-- ── SCRIPTS ──────────────────────────────────────────── -->
 <script>
-  function toggleCurrency() {
-  Currency.set(Currency.get() === 'KWD' ? 'USD' : 'KWD');
-}
 document.addEventListener('currencyChanged', function() {
-  var c = Currency.get();
-  document.getElementById('currencyToggle').textContent = c + ' ▾';
-  // re-render — your renderProducts() already reads prices, just reload them
   loadProducts();
 });
-// on load, apply saved preference
-document.getElementById('currencyToggle').textContent = Currency.get() + ' ▾';
 
 /* ── DRAWER ─── */
 function openDrawer() {
@@ -1641,7 +1653,7 @@ loadSeriesCarousel();
 function updateCartBadge() { Cart.updateBadge(); }
 Cart.updateBadge();
 
-function goCart() { window.location.href = 'checkout.html'; }
+function goCart() { window.location.href = 'cart.html'; }
 
 /* ── BAG SVG PLACEHOLDER ─── */
 function bagSVG(color) {
@@ -1866,11 +1878,53 @@ async function saveProfile() {
 }
 
 function accountLogout() {
-  Cart.clearOnLogout();
-  localStorage.removeItem('uc_token');
-  localStorage.removeItem('uc_user');
-  document.getElementById('accountPanel').style.display = 'none';
-  loadAccountPanel();
+  if (!confirm('Are you sure you want to sign out?')) return;
+
+  var btn = document.getElementById('accountLogoutBtn');
+  if (btn) {
+    btn.textContent = 'Signing out\u2026';
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    btn.style.cursor = 'not-allowed';
+  }
+
+  setTimeout(function () {
+    Cart.clearOnLogout();
+    localStorage.removeItem('uc_token');
+    localStorage.removeItem('uc_user');
+    document.getElementById('accountPanel').style.display = 'none';
+    loadAccountPanel();
+
+    if (btn) {
+      btn.textContent = 'Sign Out';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    }
+
+    showAccountToast('You have been signed out.');
+  }, 500);
+}
+
+function showAccountToast(msg) {
+  var existing = document.getElementById('accountToast');
+  if (existing) existing.remove();
+
+  var t = document.createElement('div');
+  t.id = 'accountToast';
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);' +
+    'background:#241a0f;color:#F0E8DE;font-size:12px;font-family:\'DM Sans\',sans-serif;' +
+    'padding:10px 20px;border-radius:4px;box-shadow:0 6px 20px rgba(36,26,15,0.25);' +
+    'z-index:9999;opacity:0;transition:opacity 0.3s ease;';
+  document.body.appendChild(t);
+
+  requestAnimationFrame(function () { t.style.opacity = '1'; });
+
+  setTimeout(function () {
+    t.style.opacity = '0';
+    setTimeout(function () { t.remove(); }, 300);
+  }, 2500);
 }
 
 // Close panel when clicking outside
