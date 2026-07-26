@@ -857,8 +857,6 @@
   }
 })();
 
-
-
 /* ── DRAWER ── */
 function openDrawer() {
   document.getElementById('sideDrawer').classList.add('open');
@@ -1141,6 +1139,8 @@ async function placeOrder() {
     // Handle Deema payment (online_payment)
     if (payment_method === 'online_payment') {
       try {
+        console.log('Initiating Deema payment for order:', orderId);
+        
         var deemaRes = await fetch(API_URL + '/payment/deema/initiate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
@@ -1148,10 +1148,18 @@ async function placeOrder() {
         });
         var deemaData = await deemaRes.json();
         
+        console.log('Deema response status:', deemaRes.status);
+        console.log('Deema response data:', deemaData);
+        
         if (!deemaRes.ok) {
-          console.error('Deema initiation failed:', deemaData);
+          // Check if it's a Deema authentication error
           var errorMsg = deemaData.error || deemaData.message || 'Deema payment gateway error.';
-          alert('Payment initiation failed: ' + errorMsg + '\n\nPlease try again or choose Cash on Delivery.');
+          if (deemaData.error === 'Unauthenticated' || deemaData.message === 'Unauthenticated') {
+            alert('Deema authentication failed. Please check your Deema API credentials.\n\nError: ' + errorMsg);
+          } else {
+            alert('Payment initiation failed: ' + errorMsg + '\n\nPlease try again or choose Cash on Delivery.');
+          }
+          console.error('Deema initiation failed:', deemaData);
           btn.innerHTML = 'Place Order';
           btn.disabled = false;
           return;
@@ -1405,4 +1413,4 @@ document.addEventListener('click', function(e) {
 </script>
 
 </body>
-</html> 
+</html>
