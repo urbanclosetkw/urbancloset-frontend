@@ -52,7 +52,9 @@ function localGet() {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       if (res.ok) {
-        var items = await res.json();
+        var body = await res.json();
+        // Server wraps payloads as { success, message, data }; unwrap it.
+        var items = Array.isArray(body) ? body : (body.data || []);
         localSave(items); // keep local in sync
         return items;
       }
@@ -327,7 +329,9 @@ function localGet() {
         headers: { 'Authorization': 'Bearer ' + token }
       });
       if (!res.ok) return;
-      var serverItems = await res.json(); // full product objects with qty
+      var body = await res.json();
+      // Server wraps payloads as { success, message, data }; unwrap it.
+      var serverItems = Array.isArray(body) ? body : (body.data || []); // full product objects with qty
 
       // Start with server items as the base
       var merged = serverItems.slice();

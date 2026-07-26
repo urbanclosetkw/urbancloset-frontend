@@ -787,6 +787,15 @@ function closeSeriesDrawer() { document.getElementById('seriesOffcanvas').classL
 function updateCartBadge() { Cart.updateBadge(); }
 Cart.updateBadge();
 
+/* ── ADD TO CART / BUY NOW ── */
+async function addToCart(product) {
+  await Cart.add(product);
+}
+function buyNow(product) {
+  sessionStorage.setItem('uc_buynow', JSON.stringify(Object.assign({}, product, { qty: 1 })));
+  window.location.href = 'checkout.html?buynow=1';
+}
+
 /* ── BAG SVG ── */
 function bagSVG(color) {
   return '<svg viewBox="0 0 60 55" fill="none">' +

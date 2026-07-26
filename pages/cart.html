@@ -469,9 +469,79 @@
   <a href="index.html" class="nav-logo">UrbanCloset</a>
   <div class="nav-actions">
     <div class="nav-icons">
-      <span onclick="window.location.href = localStorage.getItem('uc_token') ? 'orders.html' : 'login.html'" style="cursor:pointer;display:inline-flex;" title="Account">
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-      </span>
+      <div style="position:relative;">
+        <div id="accountBtn" onclick="toggleAccountPanel()" style="cursor:pointer;display:flex;align-items:center;" title="Account">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        </div>
+
+        <!-- ACCOUNT PANEL -->
+        <div id="accountPanel" style="display:none;position:absolute;top:32px;right:-12px;width:290px;background:#fff;border:1px solid rgba(184,147,106,0.25);border-radius:6px;box-shadow:0 8px 32px rgba(36,26,15,0.13);z-index:999;font-family:'DM Sans',sans-serif;overflow:hidden;">
+
+          <!-- Guest view (not logged in) -->
+          <div id="panelGuest" style="padding:24px 20px;text-align:center;">
+            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C4B09A" stroke-width="1.5" style="margin:0 auto 10px;display:block;"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <div style="font-family:'Cormorant Garamond',serif;font-size:17px;font-weight:600;color:#241a0f;margin-bottom:4px;">Welcome</div>
+            <div style="font-size:11px;color:#7a6a5a;margin-bottom:16px;">Sign in to view your account.</div>
+            <a href="login.html" style="display:block;background:#8B5E4A;color:#fff;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:11px;border-radius:3px;text-decoration:none;margin-bottom:8px;">Sign In</a>
+            <a href="register.html" style="display:block;border:1.5px solid rgba(139,94,74,0.35);color:#8B5E4A;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;text-decoration:none;">Create Account</a>
+          </div>
+
+          <!-- Logged-in view -->
+          <div id="panelUser" style="display:none;">
+
+            <!-- Profile header -->
+            <div style="background:linear-gradient(135deg,#241a0f 0%,#3a2518 100%);padding:20px;display:flex;align-items:center;gap:12px;">
+              <div id="panelAvatar" style="width:44px;height:44px;border-radius:50%;background:#B8936A;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden;"></div>
+              <div style="min-width:0;">
+                <div id="panelName" style="font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></div>
+                <div id="panelEmail" style="font-size:10px;color:rgba(196,176,154,0.75);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;"></div>
+              </div>
+            </div>
+
+            <!-- View mode -->
+            <div id="panelView" style="padding:14px 16px 16px;">
+              <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a6a5a;margin-bottom:10px;">Account Details</div>
+              <div style="background:#F0E8DE;border-radius:4px;padding:10px 12px;margin-bottom:8px;">
+                <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#7a6a5a;margin-bottom:2px;">Full Name</div>
+                <div id="viewName" style="font-size:13px;color:#241a0f;"></div>
+              </div>
+              <div style="background:#F0E8DE;border-radius:4px;padding:10px 12px;margin-bottom:14px;">
+                <div style="font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:#7a6a5a;margin-bottom:2px;">Email Address</div>
+                <div id="viewEmail" style="font-size:13px;color:#241a0f;word-break:break-all;"></div>
+              </div>
+              <a href="orders.html" style="display:block;width:100%;background:#F0E8DE;border:1.5px solid rgba(139,94,74,0.3);color:#8B5E4A;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;margin-bottom:8px;font-family:'DM Sans',sans-serif;text-align:center;text-decoration:none;">My Orders</a>
+              <button onclick="openEditMode()" style="width:100%;background:#F0E8DE;border:1.5px solid rgba(139,94,74,0.3);color:#8B5E4A;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;margin-bottom:8px;font-family:'DM Sans',sans-serif;">Edit Profile</button>
+              <button id="accountLogoutBtn" onclick="accountLogout()" style="width:100%;background:rgba(192,57,43,0.07);border:1.5px solid rgba(192,57,43,0.2);color:#c0392b;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;font-family:'DM Sans',sans-serif;">Sign Out</button>
+            </div>
+
+            <!-- Edit mode -->
+            <div id="panelEdit" style="display:none;padding:14px 16px 16px;">
+              <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a6a5a;margin-bottom:10px;">Edit Profile</div>
+
+              <div style="margin-bottom:10px;">
+                <label style="display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a6a5a;margin-bottom:4px;">Full Name</label>
+                <input id="editName" type="text" style="width:100%;background:#F0E8DE;border:1.5px solid rgba(184,147,106,0.3);border-radius:3px;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;color:#241a0f;outline:none;" onfocus="this.style.borderColor='#B8936A'" onblur="this.style.borderColor='rgba(184,147,106,0.3)'"/>
+              </div>
+              <div style="margin-bottom:10px;">
+                <label style="display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a6a5a;margin-bottom:4px;">Email Address</label>
+                <input id="editEmail" type="email" style="width:100%;background:#F0E8DE;border:1.5px solid rgba(184,147,106,0.3);border-radius:3px;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;color:#241a0f;outline:none;" onfocus="this.style.borderColor='#B8936A'" onblur="this.style.borderColor='rgba(184,147,106,0.3)'"/>
+              </div>
+              <div style="margin-bottom:14px;">
+                <label style="display:block;font-size:9px;letter-spacing:2px;text-transform:uppercase;color:#7a6a5a;margin-bottom:4px;">New Password <span style="color:rgba(122,106,90,0.5);font-size:8px;letter-spacing:0;">(leave blank to keep current)</span></label>
+                <input id="editPassword" type="password" placeholder="••••••••" style="width:100%;background:#F0E8DE;border:1.5px solid rgba(184,147,106,0.3);border-radius:3px;padding:9px 11px;font-size:13px;font-family:'DM Sans',sans-serif;color:#241a0f;outline:none;" onfocus="this.style.borderColor='#B8936A'" onblur="this.style.borderColor='rgba(184,147,106,0.3)'"/>
+              </div>
+
+              <div id="editMsg" style="display:none;font-size:11px;text-align:center;padding:7px;border-radius:3px;margin-bottom:10px;"></div>
+
+              <div style="display:flex;gap:8px;">
+                <button onclick="saveProfile()" style="flex:1;background:#8B5E4A;color:#fff;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;">Save</button>
+                <button onclick="closeEditMode()" style="flex:1;background:#F0E8DE;border:1.5px solid rgba(139,94,74,0.25);color:#7a6a5a;font-size:10px;letter-spacing:2px;text-transform:uppercase;padding:10px;border-radius:3px;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancel</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
       <span style="cursor:pointer;position:relative;display:inline-flex;">
         <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
         <span class="cart-count" id="cartBadge">0</span>
@@ -977,6 +1047,152 @@ function renderSummary(items) {
     shippingRow.classList.remove('free');
   }
 }
+
+/* ── ACCOUNT PANEL ─── */
+function toggleAccountPanel() {
+  var panel = document.getElementById('accountPanel');
+  var isOpen = panel.style.display === 'block';
+  if (isOpen) {
+    panel.style.display = 'none';
+  } else {
+    loadAccountPanel();
+    panel.style.display = 'block';
+  }
+}
+
+function loadAccountPanel() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('uc_user')); } catch(e) {}
+
+  var guest  = document.getElementById('panelGuest');
+  var logged = document.getElementById('panelUser');
+
+  if (!user) {
+    guest.style.display  = 'block';
+    logged.style.display = 'none';
+    return;
+  }
+
+  guest.style.display  = 'none';
+  logged.style.display = 'block';
+
+  var initials = (user.name || 'U').split(' ').map(function(w){ return w[0]; }).slice(0,2).join('').toUpperCase();
+  var avatarEl = document.getElementById('panelAvatar');
+  if (user.avatar_url) {
+    avatarEl.textContent = (user.name || 'U').charAt(0).toUpperCase();
+  } else {
+    avatarEl.textContent = initials;
+  }
+
+  document.getElementById('panelName').textContent  = user.name  || '';
+  document.getElementById('panelEmail').textContent = user.email || '';
+  document.getElementById('viewName').textContent   = user.name  || '';
+  document.getElementById('viewEmail').textContent  = user.email || '';
+}
+
+function openEditMode() {
+  var user = null;
+  try { user = JSON.parse(localStorage.getItem('uc_user')); } catch(e) {}
+  if (user) {
+    document.getElementById('editName').value  = user.name  || '';
+    document.getElementById('editEmail').value = user.email || '';
+    document.getElementById('editPassword').value = '';
+  }
+  document.getElementById('editMsg').style.display = 'none';
+  document.getElementById('panelView').style.display = 'none';
+  document.getElementById('panelEdit').style.display = 'block';
+}
+
+function closeEditMode() {
+  document.getElementById('panelEdit').style.display = 'none';
+  document.getElementById('panelView').style.display = 'block';
+}
+
+async function saveProfile() {
+  var user  = null;
+  try { user = JSON.parse(localStorage.getItem('uc_user')); } catch(e) {}
+  if (!user) return;
+
+  var name     = document.getElementById('editName').value.trim();
+  var email    = document.getElementById('editEmail').value.trim();
+  var password = document.getElementById('editPassword').value;
+  var msgEl    = document.getElementById('editMsg');
+
+  if (!name || !email) {
+    msgEl.textContent = 'Name and email are required.';
+    msgEl.style.cssText = 'display:block;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.25);color:#c0392b;font-size:11px;text-align:center;padding:7px;border-radius:3px;margin-bottom:10px;';
+    return;
+  }
+
+  var body = { name: name, email: email };
+  if (password) body.password = password;
+
+  try {
+    var token = localStorage.getItem('uc_token');
+    var res = await fetch(API_URL + '/users/' + user.id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify(body)
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Update failed.');
+
+    var updated = Object.assign({}, user, { name: name, email: email });
+    localStorage.setItem('uc_user', JSON.stringify(updated));
+
+    msgEl.textContent = 'Profile updated!';
+    msgEl.style.cssText = 'display:block;background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.25);color:#1e8449;font-size:11px;text-align:center;padding:7px;border-radius:3px;margin-bottom:10px;';
+
+    setTimeout(function() {
+      closeEditMode();
+      loadAccountPanel();
+    }, 1200);
+
+  } catch(err) {
+    msgEl.textContent = err.message;
+    msgEl.style.cssText = 'display:block;background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.25);color:#c0392b;font-size:11px;text-align:center;padding:7px;border-radius:3px;margin-bottom:10px;';
+  }
+}
+
+function accountLogout() {
+  if (!confirm('Are you sure you want to sign out?')) return;
+
+  var btn = document.getElementById('accountLogoutBtn');
+  if (btn) {
+    btn.textContent = 'Signing out\u2026';
+    btn.disabled = true;
+    btn.style.opacity = '0.6';
+    btn.style.cursor = 'not-allowed';
+  }
+
+  setTimeout(function () {
+    Cart.clearOnLogout();
+    localStorage.removeItem('uc_token');
+    localStorage.removeItem('uc_user');
+    document.getElementById('accountPanel').style.display = 'none';
+    loadAccountPanel();
+
+    if (btn) {
+      btn.textContent = 'Sign Out';
+      btn.disabled = false;
+      btn.style.opacity = '1';
+      btn.style.cursor = 'pointer';
+    }
+
+    renderPage();
+  }, 500);
+}
+
+// Close panel when clicking outside
+document.addEventListener('click', function(e) {
+  var panel = document.getElementById('accountPanel');
+  var btn   = document.getElementById('accountBtn');
+  if (panel && panel.style.display === 'block') {
+    if (!panel.contains(e.target) && !btn.contains(e.target)) {
+      panel.style.display = 'none';
+    }
+  }
+});
 
 /* ── INIT ── */
 (async function init() {
