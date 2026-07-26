@@ -679,7 +679,7 @@
           </label>
         </div>
       </div>
-<p class="form-note" id="codNote" style="margin-top:14px;display:none;">
+      <p class="form-note" id="codNote" style="margin-top:14px;display:none;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347zM11.999 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2.024 22l4.975-1.306A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 11.999 2z"/></svg>
         Your order will be confirmed automatically by email, and we'll follow up via <strong>WhatsApp</strong> with payment &amp; shipping details.
       </p>
@@ -871,12 +871,7 @@ function closeDrawer() {
   document.body.style.overflow = '';
 }
 
-/* ── CART HELPERS ──
-   Checkout can be reached three ways:
-   1. "Buy Now" on a product page  → sessionStorage 'uc_buynow' (single item)
-   2. Cart page, with only some items checked → sessionStorage 'uc_checkout_selection'
-   3. Any other path (legacy / direct link) → falls back to the full cart
-── */
+/* ── CART HELPERS ── */
 async function getCart() {
   var buyNowItem = sessionStorage.getItem('uc_buynow');
   if (buyNowItem) {
@@ -900,10 +895,7 @@ function bagSVG() {
   return '<svg viewBox="0 0 60 55" fill="none"><rect x="5" y="18" width="50" height="34" rx="3" fill="#A48374" opacity="0.4"/><path d="M18 18 C18 8 42 8 42 18" stroke="#A48374" stroke-width="3" fill="none" opacity="0.5"/><rect x="22" y="25" width="16" height="3" rx="1" fill="#CBAD8D" opacity="0.6"/></svg>';
 }
 
-/* ── REMOVE ITEM ──
-   Removing from checkout only removes from the current checkout selection
-   (and the underlying cart) — it doesn't touch anything the customer left
-   unchecked back on the cart page. ── */
+/* ── REMOVE ITEM ── */
 async function removeItem(id) {
   var selectionRaw = sessionStorage.getItem('uc_checkout_selection');
   if (selectionRaw !== null) {
@@ -920,13 +912,23 @@ async function removeItem(id) {
 function highlightPayment() {
   var cod   = document.querySelector('input[value="cash_on_delivery"]');
   var deema = document.querySelector('input[value="online_payment"]');
+  var local = document.querySelector('input[value="local_payment"]');
   var codLabel   = document.getElementById('pay-cod-label');
   var deemaLabel = document.getElementById('pay-deema-label');
+  var localLabel = document.getElementById('pay-local-label');
   var codNote    = document.getElementById('codNote');
+  var deemaNote  = document.getElementById('deemaNote');
+  var localNote  = document.getElementById('localNote');
+  
   if (!cod || !codLabel) return;
+  
   codLabel.style.borderColor   = cod.checked   ? 'var(--tan)' : 'rgba(139,94,74,0.25)';
-  deemaLabel.style.borderColor = deema && deema.checked ? 'var(--tan)' : 'rgba(139,94,74,0.25)';
+  if (deemaLabel) deemaLabel.style.borderColor = deema && deema.checked ? 'var(--tan)' : 'rgba(139,94,74,0.25)';
+  if (localLabel) localLabel.style.borderColor = local && local.checked ? 'var(--tan)' : 'rgba(139,94,74,0.25)';
+  
   if (codNote) codNote.style.display = cod.checked ? 'flex' : 'none';
+  if (deemaNote) deemaNote.style.display = deema && deema.checked ? 'flex' : 'none';
+  if (localNote) localNote.style.display = local && local.checked ? 'flex' : 'none';
 }
 
 /* ── RENDER PAGE ── */
@@ -1060,7 +1062,7 @@ function getFormData() {
 /* ── PLACE ORDER ── */
 async function placeOrder() {
   var btn = document.getElementById('btnPlaceOrder');
-  if (btn.disabled) return; // already submitting — ignore a rapid double-click/tap
+  if (btn.disabled) return;
 
   var token = localStorage.getItem('uc_token');
   if (!token) {
@@ -1074,9 +1076,6 @@ async function placeOrder() {
     return;
   }
 
-  // Lock the button immediately, before the async cart lookup below, so a
-  // second click during that network round-trip can't slip through and
-  // place a duplicate order.
   btn.disabled = true;
 
   var cart = await getCart();
@@ -1085,21 +1084,21 @@ async function placeOrder() {
   var paymentRadio = document.querySelector('input[name="payment"]:checked');
   var payment_method = paymentRadio ? paymentRadio.value : 'cash_on_delivery';
 
-  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Placing order…';
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 11-6.219-8.56"/></svg> Placing order…';
 
   var fd = getFormData();
   var orderData = {
     customer_info: {
-      name:    fd.firstName + ' ' + fd.lastName,
-      phone:   fd.phone,
-      email:   fd.email,
+      name: fd.firstName + ' ' + fd.lastName,
+      phone: fd.phone,
+      email: fd.email,
       address: fd.address,
-      city:    fd.city,
+      city: fd.city,
       country: fd.country,
-      notes:   fd.notes
+      notes: fd.notes
     },
-    items:          cart,
-    total:          cart.reduce(function(s, i) { return s + parseFloat(i.price || 0) * (i.qty || 1); }, 0),
+    items: cart,
+    total: cart.reduce(function(s, i) { return s + parseFloat(i.price || 0) * (i.qty || 1); }, 0),
     payment_method: payment_method
   };
 
@@ -1115,10 +1114,20 @@ async function placeOrder() {
     var result = await res.json();
     if (!res.ok) throw new Error(result.error || 'Server error');
 
-    // Clean up: buy-now just clears its one-off slot. Otherwise, remove
-    // exactly the items that were ordered — if this was a partial-cart
-    // checkout (only some items were checked), whatever's left over
-    // stays in the cart for later instead of being wiped out too.
+    // Get the order ID - handle different response shapes
+    var orderId;
+    if (result.data && result.data.order && result.data.order.id) {
+      orderId = result.data.order.id;
+    } else if (result.data && result.data.id) {
+      orderId = result.data.id;
+    } else if (result.order && result.order.id) {
+      orderId = result.order.id;
+    } else {
+      console.error('Unexpected response shape:', result);
+      throw new Error('Could not find order ID in response');
+    }
+
+    // Clean up cart
     if (sessionStorage.getItem('uc_buynow')) {
       sessionStorage.removeItem('uc_buynow');
     } else {
@@ -1128,28 +1137,94 @@ async function placeOrder() {
       sessionStorage.removeItem('uc_checkout_selection');
       Cart.updateBadge();
     }
-    
 
-    if (payment_method === 'online_payment' || payment_method === 'local_payment') {
-  var initiateEndpoint = payment_method === 'online_payment'
-    ? '/payment/deema/initiate'
-    : '/payment/initiate'; // MyFatoorah — supports KNET, cards & other local options
-  var mfRes = await fetch(API_URL + initiateEndpoint, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-body: JSON.stringify({ orderId: result.data.order.id })  });
-  var mfData = await mfRes.json();
-  if (mfData.data && mfData.data.paymentUrl) { window.location.href = mfData.data.paymentUrl; return; }
-  alert('Payment initiation failed: ' + (mfData.error || mfData.message || 'Unknown error. Check console.'));
-  console.error('Payment initiate failed:', mfData);
-  btn.innerHTML = 'Place Order';
-  btn.disabled = false;
-  return;
-}
-window.location.href = 'confirm.html?orderId=' + result.data.order.id;  } catch(e) {
+    // Handle Deema payment (online_payment)
+    if (payment_method === 'online_payment') {
+      try {
+        var deemaRes = await fetch(API_URL + '/payment/deema/initiate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ orderId: orderId })
+        });
+        var deemaData = await deemaRes.json();
+        
+        if (!deemaRes.ok) {
+          console.error('Deema initiation failed:', deemaData);
+          var errorMsg = deemaData.error || deemaData.message || 'Deema payment gateway error.';
+          alert('Payment initiation failed: ' + errorMsg + '\n\nPlease try again or choose Cash on Delivery.');
+          btn.innerHTML = 'Place Order';
+          btn.disabled = false;
+          return;
+        }
+        
+        // Deema returns paymentUrl in data.paymentUrl
+        if (deemaData.data && deemaData.data.paymentUrl) {
+          window.location.href = deemaData.data.paymentUrl;
+          return;
+        }
+        
+        console.error('No payment URL in Deema response:', deemaData);
+        alert('Deema payment link not generated. Please try Cash on Delivery or contact us.');
+        btn.innerHTML = 'Place Order';
+        btn.disabled = false;
+        return;
+        
+      } catch (deemaErr) {
+        console.error('Deema network error:', deemaErr);
+        alert('Deema service is currently unavailable. Please try Cash on Delivery or contact us.');
+        btn.innerHTML = 'Place Order';
+        btn.disabled = false;
+        return;
+      }
+    }
+    
+    // Handle local_payment (MyFatoorah - KNET, cards)
+    if (payment_method === 'local_payment') {
+      try {
+        var mfRes = await fetch(API_URL + '/payment/initiate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ orderId: orderId })
+        });
+        var mfData = await mfRes.json();
+        
+        if (!mfRes.ok) {
+          console.error('MyFatoorah initiation failed:', mfData);
+          var errorMsg = mfData.error || mfData.message || 'Payment gateway error.';
+          alert('Payment initiation failed: ' + errorMsg + '\n\nPlease try again or choose Cash on Delivery.');
+          btn.innerHTML = 'Place Order';
+          btn.disabled = false;
+          return;
+        }
+        
+        if (mfData.data && mfData.data.paymentUrl) {
+          window.location.href = mfData.data.paymentUrl;
+          return;
+        }
+        
+        console.error('No payment URL in MyFatoorah response:', mfData);
+        alert('Payment link not generated. Please try Cash on Delivery or contact us.');
+        btn.innerHTML = 'Place Order';
+        btn.disabled = false;
+        return;
+        
+      } catch (mfErr) {
+        console.error('MyFatoorah network error:', mfErr);
+        alert('Payment service is currently unavailable. Please try Cash on Delivery or contact us.');
+        btn.innerHTML = 'Place Order';
+        btn.disabled = false;
+        return;
+      }
+    }
+
+    // Cash on Delivery - go directly to confirmation
+    window.location.href = 'confirm.html?orderId=' + orderId;
+
+  } catch(e) {
+    console.error('Order/checkout error:', e);
     btn.innerHTML = 'Place Order';
     btn.disabled = false;
-    alert('Order failed: ' + e.message);
+    alert('Order failed: ' + (e.message || 'Unknown error. Please try again.'));
   }
 }
 
@@ -1330,4 +1405,4 @@ document.addEventListener('click', function(e) {
 </script>
 
 </body>
-</html>
+</html> 
